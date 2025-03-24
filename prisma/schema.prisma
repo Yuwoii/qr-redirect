@@ -10,7 +10,7 @@ generator client {
 
 datasource db {
   provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  url       = env("POSTGRES_PRISMA_URL") // Use Postgres Prisma URL directly
   directUrl = env("POSTGRES_URL_NON_POOLING") // Uses a direct connection for migrations
 }
 
