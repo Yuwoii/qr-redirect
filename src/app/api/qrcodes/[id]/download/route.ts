@@ -7,20 +7,20 @@ export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const session = await auth();
-  
-  if (!session?.user?.id) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
-  }
-  
-  const { id } = params;
-  const { searchParams } = new URL(request.url);
-  const format = searchParams.get("format") || "png";
-  
   try {
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+      return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+    }
+    
+    const id = params.id;
+    const { searchParams } = new URL(request.url);
+    const format = searchParams.get("format") || "png";
+    
     // Verify the QR code belongs to the user
     const qrCode = await prisma.qRCode.findFirst({
       where: {
