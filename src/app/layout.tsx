@@ -5,6 +5,7 @@ import { auth } from "./auth";
 import { Providers } from "./providers";
 import Link from "next/link";
 import SignOutButton from "@/components/SignOutButton";
+import { initializeDatabase } from '../lib/db-init';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -20,6 +21,22 @@ export const metadata: Metadata = {
   title: "QR Redirect - Manage QR Code Redirects",
   description: "A platform to create and manage QR codes with customizable redirects",
 };
+
+// Create a server action to initialize the database
+// This runs only on the server side and won't affect the Edge runtime
+async function initDB() {
+  // Only in server components, not during static rendering
+  if (typeof window === 'undefined') {
+    try {
+      await initializeDatabase();
+    } catch (error) {
+      console.error('Failed to initialize database:', error);
+    }
+  }
+}
+
+// Call the initialization method
+initDB();
 
 export default async function RootLayout({
   children,
@@ -40,6 +57,7 @@ export default async function RootLayout({
                 <Link href="/" className="text-xl font-bold text-indigo-700">QR Redirect</Link>
                 <nav>
                   <ul className="flex space-x-6">
+                    <li><Link href="/qr-demo" className="text-gray-700 hover:text-indigo-700 font-medium">QR Demo</Link></li>
                     {session ? (
                       <>
                         <li><Link href="/dashboard" className="text-gray-700 hover:text-indigo-700 font-medium">Dashboard</Link></li>

@@ -35,4 +35,25 @@ CREATE TABLE "Redirect" (
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
 
 -- CreateIndex
+CREATE INDEX "User_email_idx" ON "User"("email");
+
+-- CreateIndex
 CREATE UNIQUE INDEX "QRCode_slug_key" ON "QRCode"("slug");
+
+-- CreateIndex
+CREATE INDEX "QRCode_userId_idx" ON "QRCode"("userId");
+
+-- CreateIndex
+CREATE INDEX "QRCode_slug_idx" ON "QRCode"("slug");
+
+-- CreateIndex
+CREATE INDEX "QRCode_createdAt_idx" ON "QRCode"("createdAt");
+
+-- CreateIndex
+CREATE INDEX "Redirect_qrCodeId_idx" ON "Redirect"("qrCodeId");
+
+-- CreateIndex
+CREATE INDEX "Redirect_isActive_idx" ON "Redirect"("isActive");
+
+-- CreateIndex
+CREATE INDEX "Redirect_createdAt_idx" ON "Redirect"("createdAt");

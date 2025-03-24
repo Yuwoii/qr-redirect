@@ -1,7 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/db";
-import { generateQRCodeDataURL, generateQRCodeSVG } from "@/lib/qrcode";
-import { auth } from "@/app/auth";
+import { qrCodeRepository } from "../../../../../lib/db";
+import { generateQRCodeDataURL, generateQRCodeSVG } from "../../../../../lib/qrcode";
+import { auth } from "../../../../auth";
+import { apiError } from "../../../../../lib/api-utils";
+import logger from "../../../../../lib/logger";
 
 export async function GET(
   request: NextRequest,
@@ -22,14 +24,9 @@ export async function GET(
     const format = searchParams.get("format") || "png";
     
     // Verify the QR code belongs to the user
-    const qrCode = await prisma.qRCode.findFirst({
-      where: {
-        id,
-        userId: session.user.id
-      }
-    });
+    const qrCode = await qrCodeRepository.findById(id);
     
-    if (!qrCode) {
+    if (!qrCode || qrCode.userId !== session.user.id) {
       return NextResponse.json(
         { error: "QR code not found" },
         { status: 404 }
@@ -59,10 +56,7 @@ export async function GET(
       });
     }
   } catch (error) {
-    console.error("Error generating QR code download:", error);
-    return NextResponse.json(
-      { error: "Failed to generate QR code download" },
-      { status: 500 }
-    );
+    logger.error("Error generating QR code download:", "qrcodes/download", error as Error);
+    return apiError(error as Error, 500);
   }
 } 

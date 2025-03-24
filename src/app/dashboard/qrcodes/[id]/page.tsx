@@ -3,6 +3,7 @@ import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import prisma from "@/lib/db";
 import QRCodeDisplay from "@/components/QRCodeDisplay";
+import EnhancedQRCode from "@/components/EnhancedQRCode";
 import UpdateRedirectForm from "@/components/UpdateRedirectForm";
 import { auth } from "@/app/auth";
 
@@ -62,9 +63,14 @@ export default async function QRCodeDetailPage({ params }: QRCodeDetailPageProps
           <div className="bg-white p-6 rounded-md shadow-soft border border-gray-100 mb-6">
             <h2 className="text-lg font-semibold mb-4 text-gray-900">QR Code</h2>
             <div className="flex justify-center mb-4">
-              <QRCodeDisplay url={qrUrl} size={200} />
+              <EnhancedQRCode 
+                url={qrUrl} 
+                size={200} 
+                showCustomizeButton={true}
+                showDownloadButton={true}
+              />
             </div>
-            <div className="text-center">
+            <div className="text-center mt-4">
               <p className="text-sm text-gray-700 mb-2">Scan to visit:</p>
               <div className="bg-gray-50 p-2 rounded-md text-sm font-mono break-all border border-gray-100">
                 {qrUrl}

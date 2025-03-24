@@ -2,19 +2,65 @@
 const nextConfig = {
   // Enable static optimization where possible
   output: 'standalone',
-  // Disable React strict mode in production to avoid double rendering
-  reactStrictMode: process.env.NODE_ENV === 'development',
-  // Disable ESLint during build
+  
+  // Enable React strict mode to catch potential issues early
+  reactStrictMode: true,
+  
+  // ESLint and TypeScript checking configuration
   eslint: {
-    ignoreDuringBuilds: true,
+    // Don't fail the build on ESLint errors in production (but keep enabled)
+    ignoreDuringBuilds: process.env.NODE_ENV === 'production',
+    // Keep running ESLint to catch issues
+    dirs: ['src'],
   },
-  // Disable TypeScript type checking during build
+  
+  // TypeScript type checking
   typescript: {
-    ignoreBuildErrors: true,
+    // Don't fail the build on TypeScript errors in production (but keep enabled)
+    ignoreBuildErrors: process.env.NODE_ENV === 'production',
   },
-  // Improve serverless performance with ISR
+  
+  // Set up external packages for better serverless performance
   experimental: {
+    // Optimize packages that are better externalized
     serverComponentsExternalPackages: ['prisma', '@prisma/client'],
+    // Enable improved server-side handling
+    serverMinification: true,
+  },
+  
+  // Optimize image handling for better performance
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      // Allow QR code placeholders from trusted sources
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
+  },
+  
+  // Set up proper headers for security
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-XSS-Protection',
+            value: '1; mode=block',
+          },
+        ],
+      },
+    ];
   },
 };
 

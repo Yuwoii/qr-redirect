@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { compare } from "bcrypt";
-import prisma from "@/lib/db";
+import { userRepository } from "@/lib/db-client";
 
 // Extend the built-in session types
 declare module "next-auth" {
@@ -28,17 +28,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           return null;
         }
 
-        const user = await prisma.user.findUnique({
-          where: {
-            email: credentials.email
-          }
-        });
+        // Ensure credentials are strings
+        const email = credentials.email.toString();
+        const password = credentials.password.toString();
+        
+        const user = await userRepository.findByEmail(email);
 
         if (!user) {
           return null;
         }
 
-        const isPasswordValid = await compare(credentials.password, user.password);
+        const isPasswordValid = await compare(password, user.password);
 
         if (!isPasswordValid) {
           return null;

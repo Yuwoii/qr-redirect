@@ -10,8 +10,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("POSTGRES_URL_NON_POOLING") // Use the direct connection to avoid prepared statement issues
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
 }
 
 model User {
@@ -22,6 +22,8 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   qrCodes       QRCode[]
+
+  @@index([email]) // Add index for email lookups
 }
 
 model QRCode {
@@ -33,6 +35,10 @@ model QRCode {
   userId        String
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   redirects     Redirect[]
+
+  @@index([userId]) // Add index for user lookups
+  @@index([slug]) // Add index for slug lookups
+  @@index([createdAt]) // Add index for sorting
 }
 
 model Redirect {
@@ -44,4 +50,8 @@ model Redirect {
   qrCodeId      String
   qrCode        QRCode    @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
   visitCount    Int       @default(0)
+
+  @@index([qrCodeId]) // Add index for QR code lookups
+  @@index([isActive]) // Add index for active redirects
+  @@index([createdAt]) // Add index for sorting
 }

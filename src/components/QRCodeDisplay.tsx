@@ -1,16 +1,24 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { generateQRCodeDataURL } from '@/lib/qrcode';
+import { generateQRCodeDataURL, QRCodeCustomOptions } from '@/lib/qrcode';
 import Image from 'next/image';
 
 interface QRCodeDisplayProps {
   url: string;
   size?: number;
   className?: string;
+  options?: Partial<QRCodeCustomOptions>;
+  onGenerated?: (dataUrl: string) => void;
 }
 
-export default function QRCodeDisplay({ url, size = 250, className = '' }: QRCodeDisplayProps) {
+export default function QRCodeDisplay({ 
+  url, 
+  size = 250, 
+  className = '',
+  options = {},
+  onGenerated
+}: QRCodeDisplayProps) {
   const [qrCode, setQrCode] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -20,8 +28,20 @@ export default function QRCodeDisplay({ url, size = 250, className = '' }: QRCod
       try {
         setIsLoading(true);
         setError(null);
-        const dataUrl = await generateQRCodeDataURL(url, { width: size });
+        
+        // Merge size with options
+        const mergedOptions = {
+          width: size,
+          ...options
+        };
+        
+        const dataUrl = await generateQRCodeDataURL(url, mergedOptions);
         setQrCode(dataUrl);
+        
+        // Call onGenerated callback if provided
+        if (onGenerated) {
+          onGenerated(dataUrl);
+        }
       } catch (err) {
         console.error('Failed to generate QR code:', err);
         setError('Failed to generate QR code');
@@ -31,7 +51,7 @@ export default function QRCodeDisplay({ url, size = 250, className = '' }: QRCod
     };
 
     generateQR();
-  }, [url, size]);
+  }, [url, size, options, onGenerated]);
 
   if (isLoading) {
     return (

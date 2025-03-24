@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { hash } from "bcrypt";
-import prisma from "@/lib/db";
+import { userRepository } from "../../../lib/db-client";
 
 // Schema for user registration
 const registerSchema = z.object({
@@ -26,9 +26,7 @@ export async function POST(request: NextRequest) {
     const { name, email, password } = validationResult.data;
     
     // Check if user already exists
-    const existingUser = await prisma.user.findUnique({
-      where: { email }
-    });
+    const existingUser = await userRepository.findByEmail(email);
     
     if (existingUser) {
       return NextResponse.json(
@@ -41,12 +39,10 @@ export async function POST(request: NextRequest) {
     const hashedPassword = await hash(password, 10);
     
     // Create the user
-    const user = await prisma.user.create({
-      data: {
-        name,
-        email,
-        password: hashedPassword
-      }
+    const user = await userRepository.create({
+      name,
+      email,
+      password: hashedPassword
     });
     
     // Don't return the password
