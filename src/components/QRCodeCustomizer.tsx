@@ -493,160 +493,160 @@ export default function QRCodeCustomizer({
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
             
-            {/* Style Settings */}
-            <TabsContent value="style" className="space-y-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>QR Code Style</CardTitle>
-                  <CardDescription>
-                    Choose from pre-defined styles or customize your own
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="mb-4">
-                    <Label className="text-base font-medium mb-3 block">Style Templates</Label>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {styleTemplates.map((template, index) => (
-                        <StylePreview
-                          key={index}
-                          style={template}
-                          isSelected={
-                            options.style?.dotShape === template.options.style.dotShape &&
-                            options.style?.cornerShape === template.options.style.cornerShape &&
-                            options.style?.cornerDotStyle === template.options.style.cornerDotStyle
-                          }
-                          onClick={() => {
-                            // Apply this style template
-                            setOptions(prev => ({
-                              ...prev,
-                              style: {
-                                ...prev.style,
-                                dotShape: template.options.style.dotShape,
-                                cornerShape: template.options.style.cornerShape,
-                                cornerDotStyle: template.options.style.cornerDotStyle
-                              }
-                            }));
-                          }}
-                          previewUrl={previewImages[index] || null}
-                        />
-                      ))}
-                    </div>
+          {/* Style Settings */}
+          <TabsContent value="style" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>QR Code Style</CardTitle>
+                <CardDescription>
+                  Choose from pre-defined styles or customize your own
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="mb-4">
+                  <Label className="text-base font-medium mb-3 block">Style Templates</Label>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                    {styleTemplates.map((template, index) => (
+                      <StylePreview
+                        key={index}
+                        style={template}
+                        isSelected={
+                          options.style?.dotShape === template.options.style.dotShape &&
+                          options.style?.cornerShape === template.options.style.cornerShape &&
+                          options.style?.cornerDotStyle === template.options.style.cornerDotStyle
+                        }
+                        onClick={() => {
+                          // Apply this style template
+                          setOptions(prev => ({
+                            ...prev,
+                            style: {
+                              ...prev.style,
+                              dotShape: template.options.style.dotShape,
+                              cornerShape: template.options.style.cornerShape,
+                              cornerDotStyle: template.options.style.cornerDotStyle
+                            }
+                          }));
+                        }}
+                        previewUrl={previewImages[index] || null}
+                      />
+                    ))}
                   </div>
+                </div>
 
-                  <div className="mt-6">
-                    <Label className="text-base font-medium mb-3 block">Color Themes</Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {colorThemes.map((theme, index) => (
+                <div className="mt-6">
+                  <Label className="text-base font-medium mb-3 block">Color Themes</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {colorThemes.map((theme, index) => (
+                      <div
+                        key={index}
+                        className={`p-2 border rounded-md cursor-pointer transition-all ${
+                          options.color?.dark === theme.dark && options.color?.light === theme.light
+                            ? 'border-primary ring-2 ring-primary'
+                            : 'border-gray-200 hover:border-gray-300'
+                        }`}
+                        onClick={() => {
+                          handleNestedOptionChange('color', 'dark', theme.dark);
+                          handleNestedOptionChange('color', 'light', theme.light);
+                        }}
+                      >
+                        <div className="flex space-x-1 mb-1">
+                          <div 
+                            className="w-8 h-8 rounded-md" 
+                            style={{backgroundColor: theme.dark}}
+                          />
+                          <div 
+                            className="w-8 h-8 rounded-md border" 
+                            style={{backgroundColor: theme.light}}
+                          />
+                        </div>
+                        <div className="text-center text-xs font-medium">{theme.name}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="mt-6">
+                  <Label className="text-base font-medium mb-2 block">Custom Color Adjustments</Label>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="darkColor" className="text-sm">Dark Color</Label>
+                      <div className="flex items-center space-x-2">
                         <div
-                          key={index}
-                          className={`p-2 border rounded-md cursor-pointer transition-all ${
-                            options.color?.dark === theme.dark && options.color?.light === theme.light
-                              ? 'border-primary ring-2 ring-primary'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                          onClick={() => {
-                            handleNestedOptionChange('color', 'dark', theme.dark);
-                            handleNestedOptionChange('color', 'light', theme.light);
-                          }}
-                        >
-                          <div className="flex space-x-1 mb-1">
-                            <div 
-                              className="w-8 h-8 rounded-md" 
-                              style={{backgroundColor: theme.dark}}
-                            />
-                            <div 
-                              className="w-8 h-8 rounded-md border" 
-                              style={{backgroundColor: theme.light}}
-                            />
-                          </div>
-                          <div className="text-center text-xs font-medium">{theme.name}</div>
+                          className="w-10 h-10 rounded-md border cursor-pointer"
+                          style={{ backgroundColor: options.color?.dark || '#000000' }}
+                          onClick={() => 
+                            setIsColorPickerOpen((prev) => ({ ...prev, dark: !prev.dark }))
+                          }
+                        />
+                        <Input
+                          id="darkColor"
+                          value={options.color?.dark || '#000000'}
+                          onChange={(e) => 
+                            handleNestedOptionChange('color', 'dark', e.target.value)
+                          }
+                          className="flex-1"
+                        />
+                      </div>
+                      {isColorPickerOpen.dark && (
+                        <div className="mt-2 absolute z-10">
+                          <div 
+                            className="fixed inset-0" 
+                            onClick={() => 
+                              setIsColorPickerOpen((prev) => ({ ...prev, dark: false }))
+                            }
+                          />
+                          <SketchPicker
+                            color={options.color?.dark || '#000000'}
+                            onChange={(color) => 
+                              handleNestedOptionChange('color', 'dark', color.hex)
+                            }
+                          />
                         </div>
-                      ))}
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="lightColor" className="text-sm">Light Color</Label>
+                      <div className="flex items-center space-x-2">
+                        <div
+                          className="w-10 h-10 rounded-md border cursor-pointer"
+                          style={{ backgroundColor: options.color?.light || '#FFFFFF' }}
+                          onClick={() => 
+                            setIsColorPickerOpen((prev) => ({ ...prev, light: !prev.light }))
+                          }
+                        />
+                        <Input
+                          id="lightColor"
+                          value={options.color?.light || '#FFFFFF'}
+                          onChange={(e) => 
+                            handleNestedOptionChange('color', 'light', e.target.value)
+                          }
+                          className="flex-1"
+                        />
+                      </div>
+                      {isColorPickerOpen.light && (
+                        <div className="mt-2 absolute z-10">
+                          <div 
+                            className="fixed inset-0" 
+                            onClick={() => 
+                              setIsColorPickerOpen((prev) => ({ ...prev, light: false }))
+                            }
+                          />
+                          <SketchPicker
+                            color={options.color?.light || '#FFFFFF'}
+                            onChange={(color) => 
+                              handleNestedOptionChange('color', 'light', color.hex)
+                            }
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
-
-                  <div className="mt-6">
-                    <Label className="text-base font-medium mb-2 block">Custom Color Adjustments</Label>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="darkColor" className="text-sm">Dark Color</Label>
-                        <div className="flex items-center space-x-2">
-                          <div
-                            className="w-10 h-10 rounded-md border cursor-pointer"
-                            style={{ backgroundColor: options.color?.dark || '#000000' }}
-                            onClick={() => 
-                              setIsColorPickerOpen((prev) => ({ ...prev, dark: !prev.dark }))
-                            }
-                          />
-                          <Input
-                            id="darkColor"
-                            value={options.color?.dark || '#000000'}
-                            onChange={(e) => 
-                              handleNestedOptionChange('color', 'dark', e.target.value)
-                            }
-                            className="flex-1"
-                          />
-                        </div>
-                        {isColorPickerOpen.dark && (
-                          <div className="mt-2 absolute z-10">
-                            <div 
-                              className="fixed inset-0" 
-                              onClick={() => 
-                                setIsColorPickerOpen((prev) => ({ ...prev, dark: false }))
-                              }
-                            />
-                            <SketchPicker
-                              color={options.color?.dark || '#000000'}
-                              onChange={(color) => 
-                                handleNestedOptionChange('color', 'dark', color.hex)
-                              }
-                            />
-                          </div>
-                        )}
-                      </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="lightColor" className="text-sm">Light Color</Label>
-                        <div className="flex items-center space-x-2">
-                          <div
-                            className="w-10 h-10 rounded-md border cursor-pointer"
-                            style={{ backgroundColor: options.color?.light || '#FFFFFF' }}
-                            onClick={() => 
-                              setIsColorPickerOpen((prev) => ({ ...prev, light: !prev.light }))
-                            }
-                          />
-                          <Input
-                            id="lightColor"
-                            value={options.color?.light || '#FFFFFF'}
-                            onChange={(e) => 
-                              handleNestedOptionChange('color', 'light', e.target.value)
-                            }
-                            className="flex-1"
-                          />
-                        </div>
-                        {isColorPickerOpen.light && (
-                          <div className="mt-2 absolute z-10">
-                            <div 
-                              className="fixed inset-0" 
-                              onClick={() => 
-                                setIsColorPickerOpen((prev) => ({ ...prev, light: false }))
-                              }
-                            />
-                            <SketchPicker
-                              color={options.color?.light || '#FFFFFF'}
-                              onChange={(color) => 
-                                handleNestedOptionChange('color', 'light', color.hex)
-                              }
-                            />
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                </div>
+              </CardContent>
+            </Card>
           </TabsContent>
           
           {/* Logo Settings */}
