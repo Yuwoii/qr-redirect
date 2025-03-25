@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { QRCodeCustomOptions, defaultQRCodeOptions, generateQRCodeDataURL } from '@/lib/qrcode';
+import React, { useState, useEffect, useMemo } from 'react';
+import { QRCodeCustomOptions, defaultQRCodeOptions, generateQRCodeDataURL, drawCustomQRCode, addLogoToQRCode } from '@/lib/qrcode';
 import { SketchPicker } from 'react-color';
+import qrcode from 'qrcode-generator';
 import {
   Card,
   CardContent,
@@ -31,9 +32,6 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Button as ChakraButton, Divider, Flex, Grid } from '@chakra-ui/react';
-import qrcode from 'qrcode-generator';
-import { drawCustomQRCode, addLogoToQRCode } from '@/lib/qrcode';
 
 interface QRCodeCustomizerProps {
   url: string;
@@ -274,8 +272,18 @@ export default function QRCodeCustomizer({
           qr.addData('https://example.com');
           qr.make();
           
+          // Convert qrcode-generator format to the expected format for drawCustomQRCode
+          const moduleCount = qr.getModuleCount();
+          const modules: boolean[][] = [];
+          for (let row = 0; row < moduleCount; row++) {
+            modules[row] = [];
+            for (let col = 0; col < moduleCount; col++) {
+              modules[row][col] = qr.isDark(row, col);
+            }
+          }
+          
           // Generate the QR with this style and the current colors
-          await drawCustomQRCode(ctx, qr, {
+          await drawCustomQRCode(ctx, { modules }, {
             width: 100,
             margin: 1,
             color: {
@@ -330,6 +338,16 @@ export default function QRCodeCustomizer({
         qr.addData(url);
         qr.make();
         
+        // Convert qrcode-generator format to the expected format for drawCustomQRCode
+        const moduleCount = qr.getModuleCount();
+        const modules: boolean[][] = [];
+        for (let row = 0; row < moduleCount; row++) {
+          modules[row] = [];
+          for (let col = 0; col < moduleCount; col++) {
+            modules[row][col] = qr.isDark(row, col);
+          }
+        }
+        
         // Apply current options for preview
         const currentOptions: QRCodeCustomOptions = {
           width: size,
@@ -341,12 +359,12 @@ export default function QRCodeCustomizer({
           style: {
             dotShape: options.style?.dotShape as 'square' | 'rounded' | 'dots',
             cornerShape: options.style?.cornerShape === 'rounded' ? 'rounded' : 'square',
-            cornerDotStyle: options.style?.cornerDotStyle === 'dots' ? 'dot' : 'square',
+            cornerDotStyle: options.style?.cornerDotStyle === 'dot' ? 'dot' : 'square',
           },
         };
         
         // Generate QR code with custom options
-        await drawCustomQRCode(ctx, qr, currentOptions);
+        await drawCustomQRCode(ctx, { modules }, currentOptions);
         
         // Add logo if provided
         if (logoFile) {

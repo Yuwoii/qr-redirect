@@ -1,204 +1,119 @@
-# QR Code Customization Testing Plan
+# QR Code Customization Testing Guide
 
-## Overview
+## Testing the QR Code Customization Fix
 
-This document outlines a comprehensive testing plan for the QR code customization feature, with a specific focus on verifying color application across different style templates. The current issue where colors only display correctly for Forest and Classic styles will be addressed and thoroughly tested.
+This document provides a comprehensive guide for testing the QR code color application fix to ensure that all style templates correctly apply the user-selected colors.
 
-## Test Environment Setup
+## Test Page
 
-1. **Local Development Environment**:
-   - Run `npm run dev` to start the development server
-   - Access the QR customization page at `http://localhost:3000/qr-customize`
-   - Use Chrome DevTools for real-time inspection and debugging
+A dedicated test page has been created at `/qr-test` that automatically generates QR codes for all style and color combinations. This page provides:
 
-2. **Testing Browsers**:
-   - Chrome (latest)
-   - Firefox (latest)
-   - Safari (latest)
-   - Mobile browsers (iOS Safari, Chrome for Android)
+1. Visual verification of color application
+2. Statistical analysis of color matching success
+3. Diagnostic information for each style-color combination
 
-3. **Testing Devices**:
-   - Desktop (Windows, macOS)
-   - Mobile (iPhone, Android)
-   - Tablet (iPad, Android)
+## Manual Testing Steps
 
-## Test Cases
+To thoroughly test the QR code customization fix, follow these steps:
 
-### 1. Color Application Tests
+### 1. Basic Functionality Test
 
-#### Basic Color Application
-- **Test ID**: COLOR-01
-- **Description**: Verify that custom colors apply correctly to all QR style templates
-- **Steps**:
-  1. Navigate to QR customization page
-  2. Select each style template one by one (Forest, Classic, Rounded, Dots, Classy, Elegant, etc.)
-  3. Apply a custom foreground color (#FF0000 - bright red)
-  4. Apply a custom background color (#FFFF00 - bright yellow)
-- **Expected Result**: All style templates should correctly display the selected foreground and background colors
-- **Pass Criteria**: Visual verification of color application for each style
+1. Navigate to the dashboard and create a new QR code
+2. Access the QR code customization page from the dashboard
+3. Verify that all style templates are visible with their preview images
+4. Confirm that the color pickers work and update the preview in real-time
 
-#### Color Picker Integration
-- **Test ID**: COLOR-02
-- **Description**: Verify that the color picker correctly updates the QR code for all styles
-- **Steps**:
-  1. Navigate to QR customization page
-  2. Select a style template other than Forest or Classic
-  3. Use the color picker to change colors dynamically
-  4. Observe real-time updates to the QR code preview
-- **Expected Result**: QR code preview updates in real-time with selected colors for all styles
-- **Pass Criteria**: Visual verification of real-time color updates
+### 2. Style-Color Combination Test
 
-#### Edge Case Colors
-- **Test ID**: COLOR-03
-- **Description**: Test extreme color values with all style templates
-- **Test Cases**:
-  - Black foreground (#000000) with white background (#FFFFFF)
-  - White foreground (#FFFFFF) with black background (#000000)
-  - Low contrast combinations (e.g., #EEEEEE foreground with #FFFFFF background)
-  - Transparent background (if supported)
-- **Expected Result**: All styles should handle edge case colors appropriately
-- **Pass Criteria**: Visual verification of color application; low contrast combinations should show a warning
+For each of the following style templates:
+- Classic
+- Forest
+- Rounded
+- Dots
+- Corner Dots
+- Hybrid
 
-### 2. Style-Specific Tests
+Test with these color combinations:
+- Dark: #000000 (Black), Light: #FFFFFF (White) - Default
+- Dark: #0F766E (Green), Light: #ECFDF5 (Light Green)
+- Dark: #7E22CE (Purple), Light: #F5F3FF (Light Purple)
+- Dark: #BE123C (Red), Light: #FFF1F2 (Light Red)
+- Dark: #B45309 (Amber), Light: #FFFBEB (Light Amber)
+- Dark: #0063B3 (Blue), Light: #E6F0FF (Light Blue)
 
-#### Forest Style
-- **Test ID**: STYLE-01
-- **Description**: Verify color application for Forest style
-- **Steps**:
-  1. Select Forest style
-  2. Test with 5 different color combinations
-- **Expected Result**: Forest style renders correctly with all color combinations
-- **Pass Criteria**: Visual verification of proper rendering
+### 3. Verification Checklist
 
-#### Classic Style
-- **Test ID**: STYLE-02
-- **Description**: Verify color application for Classic style
-- **Steps**:
-  1. Select Classic style
-  2. Test with 5 different color combinations
-- **Expected Result**: Classic style renders correctly with all color combinations
-- **Pass Criteria**: Visual verification of proper rendering
+For each style-color combination, verify:
 
-#### Rounded Style
-- **Test ID**: STYLE-03
-- **Description**: Verify color application for Rounded style
-- **Steps**:
-  1. Select Rounded style
-  2. Test with 5 different color combinations
-- **Expected Result**: Rounded style renders correctly with all color combinations
-- **Pass Criteria**: Visual verification of proper rendering
+- [ ] The QR code background matches the selected light color
+- [ ] All dots/modules in the QR code match the selected dark color
+- [ ] The corner squares match the selected dark color
+- [ ] The style-specific features (rounded corners, dots) maintain their shape
+- [ ] The QR code is scannable with a standard QR reader
+- [ ] The QR code preview in the customizer matches the generated QR code
 
-#### Dots Style
-- **Test ID**: STYLE-04
-- **Description**: Verify color application for Dots style
-- **Steps**:
-  1. Select Dots style
-  2. Test with 5 different color combinations
-- **Expected Result**: Dots style renders correctly with all color combinations
-- **Pass Criteria**: Visual verification of proper rendering
+### 4. Edge Case Testing
 
-#### Additional Styles
-- Repeat the above tests for all remaining style templates
+Test the following edge cases:
 
-### 3. Compatibility Tests
+- [ ] Very high contrast colors (e.g., black/white)
+- [ ] Low contrast colors (e.g., dark blue on dark purple)
+- [ ] Non-standard colors (using the color picker's hex input)
+- [ ] Rapidly switching between styles while customizing
+- [ ] Adding a logo to QR codes with different styles
 
-#### Logo Integration
-- **Test ID**: COMPAT-01
-- **Description**: Verify that custom colors work correctly with logo embedding
-- **Steps**:
-  1. Select different style templates
-  2. Apply custom colors
-  3. Add a logo to the QR code
-- **Expected Result**: Colors should apply correctly with embedded logos for all styles
-- **Pass Criteria**: Visual verification of color application with logos
+### 5. Browser Compatibility
 
-#### Download Functionality
-- **Test ID**: COMPAT-02
-- **Description**: Verify that downloaded QR codes retain custom colors
-- **Steps**:
-  1. Apply custom colors to different style templates
-  2. Download QR codes in PNG and SVG formats
-  3. Open downloaded files
-- **Expected Result**: Downloaded files should have the same colors as the preview
-- **Pass Criteria**: Visual comparison between preview and downloaded files
+Test the QR code customization on:
 
-#### Error Correction
-- **Test ID**: COMPAT-03
-- **Description**: Verify that custom colors work with different error correction levels
-- **Steps**:
-  1. Select different style templates
-  2. Apply custom colors
-  3. Change error correction levels (L, M, Q, H)
-- **Expected Result**: Colors should apply correctly with all error correction levels
-- **Pass Criteria**: Visual verification of color application with different error correction levels
+- [ ] Chrome
+- [ ] Firefox
+- [ ] Safari
+- [ ] Edge
+- [ ] Mobile browsers (iOS Safari, Chrome for Android)
 
-### 4. Regression Tests
+## Automated Testing
 
-#### Default Colors
-- **Test ID**: REG-01
-- **Description**: Verify that default colors still work correctly for all styles
-- **Steps**:
-  1. Select each style template
-  2. Observe with default colors
-- **Expected Result**: All styles should display correctly with default colors
-- **Pass Criteria**: Visual verification of proper rendering with default colors
+The `/qr-test` page includes automated verification:
 
-#### Previously Working Styles
-- **Test ID**: REG-02
-- **Description**: Verify that Forest and Classic styles (which worked before) still work correctly
-- **Steps**:
-  1. Select Forest and Classic styles
-  2. Apply various custom colors
-- **Expected Result**: Forest and Classic styles should continue to work correctly with custom colors
-- **Pass Criteria**: Visual verification of proper color application
+1. It renders all style-color combinations
+2. It analyzes the colors in the generated QR codes
+3. It compares the actual colors to the expected colors
+4. It reports success rates per style and overall
 
-## Testing Procedure
+## Debugging Tools
 
-1. **Pre-fix Testing**:
-   - Document the current behavior of each style with custom colors
-   - Take screenshots for comparison purposes
+For debugging color application issues, the test page includes:
 
-2. **Development Testing**:
-   - Test each style as it's fixed
-   - Verify color application for each fixed style
+1. Color analysis that extracts actual colors from the rendered QR codes
+2. Color swatch comparison showing expected vs. actual colors
+3. Generation timing to identify performance issues
+4. Success/failure indicators for each style-color combination
 
-3. **Post-fix Testing**:
-   - Run through all test cases
-   - Verify that all styles now correctly apply custom colors
-   - Document any edge cases or limitations
+## Expected Results
 
-4. **Automated Testing (Future)**:
-   - Implement visual regression tests for color application
-   - Add unit tests for color transformation logic
-   - Create integration tests for the customization workflow
+After the fix, all style templates should correctly apply the specified colors. The expected success rate should be close to 100% for all styles.
 
-## Test Reporting
+## Reporting Issues
 
-For each test case, document:
-- Pass/Fail status
-- Screenshots before and after the fix
-- Any unexpected behavior or edge cases
-- Browser/device compatibility issues
+If any issues are found during testing, document the following:
 
-## Acceptance Criteria
+1. The specific style and color combination
+2. The actual vs. expected color values
+3. The browser and device used
+4. Screenshot of the issue
+5. Steps to reproduce
 
-The QR code customization fix will be considered complete when:
-1. All style templates correctly apply custom foreground and background colors
-2. Color changes are visible in real-time in the preview
-3. Downloaded QR codes match the preview with correct colors
-4. All existing functionality continues to work correctly
-5. All tests have passed on all specified browsers and devices
+## QR Code Generation Process
 
-## Test Schedule
+For reference, the QR code generation process follows these steps:
 
-1. **Initial Testing**: Document current behavior (1 day)
-2. **Development Testing**: Test during development (ongoing)
-3. **Complete Testing**: Full test suite after fix implementation (2 days)
-4. **Documentation**: Update documentation with findings (1 day)
+1. User selects style and colors in the customization UI
+2. The options are passed to the `drawCustomQRCode` function
+3. The canvas background is filled with the light color
+4. Each module is drawn based on its position and the selected style
+5. The dark color is applied to each module during drawing
+6. Style-specific shapes (rounded corners, dots) are rendered
+7. The final canvas is converted to a data URL for display
 
-## Post-Release Monitoring
-
-After deployment, monitor:
-- User feedback on color customization
-- Bug reports related to QR styling
-- Analytics on style template usage and customization patterns 
+This comprehensive testing approach ensures that the QR code customization feature works correctly for all style templates and color combinations. 

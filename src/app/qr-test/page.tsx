@@ -78,6 +78,16 @@ export default function QRTestPage() {
             qr.addData('https://example.com/test');
             qr.make();
             
+            // Convert qrcode-generator format to the expected format for drawCustomQRCode
+            const moduleCount = qr.getModuleCount();
+            const modules: boolean[][] = [];
+            for (let row = 0; row < moduleCount; row++) {
+              modules[row] = [];
+              for (let col = 0; col < moduleCount; col++) {
+                modules[row][col] = qr.isDark(row, col);
+              }
+            }
+            
             // Create options
             const options: QRCodeCustomOptions = {
               width: 200,
@@ -94,7 +104,7 @@ export default function QRTestPage() {
             };
             
             // Draw QR code
-            await drawCustomQRCode(ctx, qr, options);
+            await drawCustomQRCode(ctx, { modules }, options);
             
             // Convert to data URL
             const dataURL = canvas.toDataURL('image/png');

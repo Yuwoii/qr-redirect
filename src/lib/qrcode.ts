@@ -255,7 +255,7 @@ async function generateCustomQRCode(url: string, options: QRCodeCustomOptions): 
     
     // Add logo if provided
     if (options.logo?.src) {
-      await addLogoToQRCode(ctx, options);
+      await addLogoToQRCode(ctx, options.logo.src, options);
     }
     
     // Return as data URL
@@ -340,21 +340,37 @@ export async function drawCustomQRCode(
 /**
  * Add a logo to the center of a QR code
  * @param ctx Canvas context
+ * @param logoSource File or URL for the logo
  * @param options Customization options
  */
-async function addLogoToQRCode(
+export async function addLogoToQRCode(
   ctx: CanvasRenderingContext2D, 
+  logoSource: File | string,
   options: QRCodeCustomOptions
 ): Promise<void> {
-  if (!options.logo?.src) return;
+  // Check if we even have logo source
+  if (!logoSource && !options.logo?.src) return;
   
   try {
     const canvasSize = options.width || 300;
-    const logoWidth = options.logo.width || canvasSize * 0.2;
-    const logoHeight = options.logo.height || logoWidth;
+    const logoWidth = options.logo?.width || canvasSize * 0.2;
+    const logoHeight = options.logo?.height || logoWidth;
     
     // Load the logo image
-    const logo = await loadImage(options.logo.src);
+    let logo;
+    if (options.logo?.src) {
+      logo = await loadImage(options.logo.src);
+    } else if (typeof logoSource === 'string') {
+      logo = await loadImage(logoSource);
+    } else if (logoSource instanceof File) {
+      // If it's a File object, create a URL for it
+      const url = URL.createObjectURL(logoSource);
+      logo = await loadImage(url);
+      // Clean up the URL after loading
+      URL.revokeObjectURL(url);
+    } else {
+      throw new Error('Invalid logo source');
+    }
     
     // Calculate logo position (center)
     const x = (canvasSize - logoWidth) / 2;
@@ -364,7 +380,7 @@ async function addLogoToQRCode(
     ctx.save();
     
     // Add border radius if specified
-    if (options.logo.borderRadius) {
+    if (options.logo?.borderRadius) {
       ctx.beginPath();
       ctx.moveTo(x + options.logo.borderRadius, y);
       ctx.lineTo(x + logoWidth - options.logo.borderRadius, y);
@@ -382,7 +398,7 @@ async function addLogoToQRCode(
     // Add white background for logo
     ctx.fillStyle = '#ffffff';
     
-    if (options.logo.border) {
+    if (options.logo?.border) {
       const borderWidth = options.logo.borderWidth || 5;
       ctx.fillRect(
         x - borderWidth, 
@@ -392,7 +408,7 @@ async function addLogoToQRCode(
       );
       
       // Draw border
-      if (options.logo.borderColor) {
+      if (options.logo?.borderColor) {
         ctx.strokeStyle = options.logo.borderColor;
         ctx.lineWidth = borderWidth;
         ctx.strokeRect(
@@ -407,7 +423,7 @@ async function addLogoToQRCode(
     }
     
     // Draw the logo with opacity
-    if (options.logo.opacity !== undefined && options.logo.opacity < 1) {
+    if (options.logo?.opacity !== undefined && options.logo.opacity < 1) {
       ctx.globalAlpha = options.logo.opacity;
     }
     
