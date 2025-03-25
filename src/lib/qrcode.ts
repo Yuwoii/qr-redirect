@@ -266,13 +266,8 @@ async function generateCustomQRCode(url: string, options: QRCodeCustomOptions): 
   }
 }
 
-/**
- * Draw a custom QR code on a canvas with styling options
- * @param ctx Canvas context
- * @param qrData QR code data
- * @param options Customization options
- */
-async function drawCustomQRCode(
+// Export the drawCustomQRCode, drawRoundedSquare, and drawCircle functions
+export async function drawCustomQRCode(
   ctx: CanvasRenderingContext2D, 
   qrData: { modules: boolean[][] }, 
   options: QRCodeCustomOptions
@@ -281,13 +276,15 @@ async function drawCustomQRCode(
   const moduleSize = (options.width || 300) / moduleCount;
   const margin = (options.margin || 0) * moduleSize;
   
-  // Set background color for the entire canvas
-  ctx.fillStyle = options.color?.light || '#ffffff';
+  // Get the colors from options, ensuring they're in a usable format
+  const darkColor = options.color?.dark || '#000000';
+  const lightColor = options.color?.light || '#ffffff';
+  
+  // First, fill the entire canvas with the light color (background)
+  ctx.fillStyle = lightColor;
   ctx.fillRect(0, 0, (options.width || 300), (options.width || 300));
   
-  // Dark color for QR modules
-  const darkColor = options.color?.dark || '#000000';
-  
+  // Now we'll draw each module in the dark color
   // Draw each module (dot) of the QR code
   for (let row = 0; row < moduleCount; row++) {
     for (let col = 0; col < moduleCount; col++) {
@@ -296,7 +293,8 @@ async function drawCustomQRCode(
         const x = margin + col * moduleSize;
         const y = margin + row * moduleSize;
         
-        // Always ensure we're using the correct color before drawing
+        // Important: Set the fill style for EACH drawing operation
+        // This ensures the color is consistently applied
         ctx.fillStyle = darkColor;
         
         // Check if this is a special position (e.g., corner)
@@ -312,25 +310,24 @@ async function drawCustomQRCode(
           (row >= moduleCount - 5 && row < moduleCount - 2 && col >= 2 && col < 5); // Bottom-left corner dot
         
         if (isCorner && options.style?.cornerShape === 'rounded') {
-          // Draw rounded corner with the correct fill color
-          ctx.fillStyle = darkColor;
-          drawRoundedSquare(ctx, x, y, moduleSize, moduleSize, moduleSize / 3);
+          // Draw rounded corner
+          drawRoundedSquare(ctx, x, y, moduleSize, moduleSize, moduleSize / 3, darkColor);
         } else if (isCornerDot && options.style?.cornerDotStyle === 'dot') {
-          // Draw corner dot as circle with the correct fill color
-          ctx.fillStyle = darkColor;
-          drawCircle(ctx, x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2);
+          // Draw corner dot as circle
+          drawCircle(ctx, x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2, darkColor);
         } else {
           // Draw regular module based on selected style
-          ctx.fillStyle = darkColor;
           switch (options.style?.dotShape) {
             case 'rounded':
-              drawRoundedSquare(ctx, x, y, moduleSize, moduleSize, moduleSize / 4);
+              drawRoundedSquare(ctx, x, y, moduleSize, moduleSize, moduleSize / 4, darkColor);
               break;
             case 'dots':
-              drawCircle(ctx, x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2);
+              drawCircle(ctx, x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2, darkColor);
               break;
             case 'square':
             default:
+              // Directly set fill style before each draw operation
+              ctx.fillStyle = darkColor;
               ctx.fillRect(x, y, moduleSize, moduleSize);
               break;
           }
@@ -433,12 +430,16 @@ function drawRoundedSquare(
   y: number, 
   width: number, 
   height: number, 
-  radius: number
+  radius: number,
+  color: string
 ): void {
   // Save current context state
   ctx.save();
   
-  // Use the current fillStyle that was set before calling this function
+  // Explicitly set the fill color
+  ctx.fillStyle = color;
+  
+  // Draw the rounded rectangle path
   ctx.beginPath();
   ctx.moveTo(x + radius, y);
   ctx.lineTo(x + width - radius, y);
@@ -450,6 +451,8 @@ function drawRoundedSquare(
   ctx.lineTo(x, y + radius);
   ctx.quadraticCurveTo(x, y, x + radius, y);
   ctx.closePath();
+  
+  // Fill the path with the specified color
   ctx.fill();
   
   // Restore context state
@@ -463,15 +466,21 @@ function drawCircle(
   ctx: CanvasRenderingContext2D, 
   x: number, 
   y: number, 
-  radius: number
+  radius: number,
+  color: string
 ): void {
   // Save current context state
   ctx.save();
   
-  // Use the current fillStyle that was set before calling this function
+  // Explicitly set the fill color
+  ctx.fillStyle = color;
+  
+  // Draw the circle path
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, 2 * Math.PI);
   ctx.closePath();
+  
+  // Fill the path with the specified color
   ctx.fill();
   
   // Restore context state

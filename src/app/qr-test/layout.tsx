@@ -14,8 +14,8 @@ export default function QRTestLayout({
   children: React.ReactNode;
 }) {
   return (
-    <section className={inter.className}>
+    <div className="min-h-screen bg-gray-50">
       {children}
-    </section>
+    </div>
   );
 } 

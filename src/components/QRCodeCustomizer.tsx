@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { QRCodeCustomOptions, defaultQRCodeOptions, generateQRCodeDataURL } from '@/lib/qrcode';
 import { SketchPicker } from 'react-color';
 import {
@@ -31,6 +31,9 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Button as ChakraButton, Divider, Flex, Grid } from '@chakra-ui/react';
+import qrcode from 'qrcode-generator';
+import { drawCustomQRCode, addLogoToQRCode } from '@/lib/qrcode';
 
 interface QRCodeCustomizerProps {
   url: string;
@@ -171,6 +174,8 @@ const colorThemes = [
   { name: "Amber", dark: "#B45309", light: "#FFFBEB" },
 ];
 
+type StylePreviewMap = Record<string, string>;
+
 export default function QRCodeCustomizer({
   url,
   onCustomized,
@@ -236,66 +241,153 @@ export default function QRCodeCustomizer({
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   
-  // Generate preview images for style templates
-  const [previewImages, setPreviewImages] = useState<Record<number, string>>({});
+  // Style preview images
+  const [previewImages, setPreviewImages] = useState<StylePreviewMap>({});
   
-  // Generate preview images once when component mounts
+  // Generate preview images for each style template when component loads
   useEffect(() => {
-    const generatePreviews = async () => {
-      const previewData: Record<number, string> = {};
-      
-      for (let i = 0; i < styleTemplates.length; i++) {
-        const template = styleTemplates[i];
-        try {
-          // Use a simple example URL for all previews
-          const previewUrl = await generateQRCodeDataURL(
-            "https://example.com",
-            {
-              width: 120, // Small size for previews
-              margin: 1,
-              // Pass proper colors to ensure correct preview rendering
-              color: {
-                dark: template.name === "Forest" ? "#0F766E" : 
-                     template.name === "Rounded" ? "#7E22CE" : 
-                     template.name === "Dots" ? "#BE123C" :
-                     template.name === "Corner Dots" ? "#B45309" :
-                     template.name === "Hybrid" ? "#0063B3" : "#000000",
-                light: "#ffffff"
-              },
-              style: {
-                dotShape: template.options.style.dotShape,
-                cornerShape: template.options.style.cornerShape,
-                cornerDotStyle: template.options.style.cornerDotStyle
-              }
-            }
-          );
-          previewData[i] = previewUrl;
-        } catch (error) {
-          console.error(`Failed to generate preview for template ${template.name}:`, error);
+    const createStylePreviews = async () => {
+      try {
+        const previewsMap: StylePreviewMap = {};
+        
+        // Create a small canvas for each style preview
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = 100;
+        tempCanvas.height = 100;
+        const ctx = tempCanvas.getContext('2d');
+        
+        if (!ctx) {
+          throw new Error('Could not get canvas context');
         }
+        
+        // Current color options from state
+        const currentDarkColor = options.color?.dark || '#000000';
+        const currentLightColor = options.color?.light || '#ffffff';
+        
+        // Generate QR for each style with current colors
+        for (const style of styleTemplates) {
+          // Clear canvas for new style
+          ctx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+          
+          // Create a sample QR code for this style
+          const qr = qrcode(0, 'M');
+          qr.addData('https://example.com');
+          qr.make();
+          
+          // Generate the QR with this style and the current colors
+          await drawCustomQRCode(ctx, qr, {
+            width: 100,
+            margin: 1,
+            color: {
+              dark: currentDarkColor,
+              light: currentLightColor,
+            },
+            style: {
+              dotShape: style.options.style.dotShape,
+              cornerShape: style.options.style.cornerShape,
+              cornerDotStyle: style.options.style.cornerDotStyle
+            },
+          });
+          
+          // Convert to data URL and store in the map
+          const dataUrl = tempCanvas.toDataURL('image/png');
+          previewsMap[style.name] = dataUrl;
+        }
+        
+        setPreviewImages(previewsMap);
+      } catch (error) {
+        console.error('Error generating style previews:', error);
       }
-      
-      setPreviewImages(previewData);
     };
     
-    generatePreviews();
-  }, []);
+    createStylePreviews();
+  }, [options.color?.dark, options.color?.light]); // Regenerate previews when colors change
   
-  // Generate the QR code preview whenever options change
+  // Generate preview QR code whenever options change
   useEffect(() => {
-    const generateQRCode = async () => {
+    if (!url) return;
+    
+    const generatePreview = async () => {
       try {
         setError(null);
-        const dataUrl = await generateQRCodeDataURL(url, options);
-        setQrCodeDataUrl(dataUrl);
-      } catch (err) {
-        setError((err as Error).message);
-        console.error('Error generating QR code:', err);
+        
+        // Create QR code with current options
+        const tempCanvas = document.createElement('canvas');
+        const size = 300; // Preview size
+        tempCanvas.width = size;
+        tempCanvas.height = size;
+        const ctx = tempCanvas.getContext('2d');
+        
+        if (!ctx) {
+          throw new Error('Could not get canvas context');
+        }
+        
+        // Clear canvas
+        ctx.clearRect(0, 0, size, size);
+        
+        // Create QR code
+        const qr = qrcode(0, 'M');
+        qr.addData(url);
+        qr.make();
+        
+        // Apply current options for preview
+        const currentOptions: QRCodeCustomOptions = {
+          width: size,
+          margin: 2,
+          color: {
+            dark: options.color?.dark || '#000000',
+            light: options.color?.light || '#ffffff',
+          },
+          style: {
+            dotShape: options.style?.dotShape as 'square' | 'rounded' | 'dots',
+            cornerShape: options.style?.cornerShape === 'rounded' ? 'rounded' : 'square',
+            cornerDotStyle: options.style?.cornerDotStyle === 'dots' ? 'dot' : 'square',
+          },
+        };
+        
+        // Generate QR code with custom options
+        await drawCustomQRCode(ctx, qr, currentOptions);
+        
+        // Add logo if provided
+        if (logoFile) {
+          await addLogoToQRCode(ctx, logoFile, {
+            ...currentOptions,
+            logo: {
+              width: options.logo?.width || 100,
+              height: options.logo?.height || 100,
+              opacity: options.logo?.opacity || 1,
+              borderRadius: options.logo?.borderRadius || 0,
+              border: options.logo?.border !== false,
+            },
+          });
+        }
+        
+        // Convert to data URL for preview
+        const previewUrl = tempCanvas.toDataURL('image/png');
+        setQrCodeDataUrl(previewUrl);
+      } catch (error) {
+        console.error('Error generating QR code preview:', error);
+        setError(error instanceof Error ? error.message : 'Unknown error generating QR code');
       }
     };
     
-    generateQRCode();
-  }, [url, options]);
+    // Debounce to avoid too many re-renders
+    const timer = setTimeout(generatePreview, 300);
+    return () => clearTimeout(timer);
+  }, [
+    url,
+    options.color?.dark,
+    options.color?.light,
+    options.style?.dotShape,
+    options.style?.cornerShape,
+    options.style?.cornerDotStyle,
+    logoFile,
+    options.logo?.width,
+    options.logo?.height,
+    options.logo?.opacity,
+    options.logo?.borderRadius,
+    options.logo?.border,
+  ]);
   
   // Handle logo file upload
   useEffect(() => {
@@ -537,7 +629,7 @@ export default function QRCodeCustomizer({
                             }
                           }));
                         }}
-                        previewUrl={previewImages[index] || null}
+                        previewUrl={previewImages[template.name] || null}
                       />
                     ))}
                   </div>

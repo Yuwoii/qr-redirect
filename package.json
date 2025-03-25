@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node scripts/setup-local.js && next dev",
     "build": "node scripts/db-migrate.js && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
@@ -15,7 +15,9 @@
     "db:check-vercel": "node scripts/vercel-check.js",
     "vercel-build": "chmod +x scripts/*.js && npm run db:check-vercel && npm run db:migrate --env=vercel && next build || (echo 'Trying fallback build process...' && node scripts/db-migrate.js --env=vercel && prisma generate && next build)",
     "db:validate": "node scripts/validate-schema.js",
-    "prisma:seed": "tsx prisma/seed.ts"
+    "prisma:seed": "tsx prisma/seed.ts",
+    "local:setup": "node scripts/setup-local.js",
+    "dev:clean": "npm run local:setup && npm run dev"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
@@ -41,6 +43,7 @@
     "next-auth": "^5.0.0-beta.25",
     "prisma": "^6.5.0",
     "qrcode": "^1.5.3",
+    "qrcode-generator": "^1.4.4",
     "react": "^19.0.0",
     "react-color": "^2.19.3",
     "react-dom": "^19.0.0",
