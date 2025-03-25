@@ -88,11 +88,11 @@ export default function EnhancedQRCode({
                   Customize
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-4xl w-[95vw]">
+              <DialogContent className="max-w-5xl w-[95vw]">
                 <DialogHeader>
                   <DialogTitle>Customize QR Code</DialogTitle>
                   <DialogDescription>
-                    Customize the appearance of your QR code
+                    Choose from visual styles or customize your own design
                   </DialogDescription>
                 </DialogHeader>
                 <QRCodeCustomizer 

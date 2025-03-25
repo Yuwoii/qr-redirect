@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { QRCodeCustomOptions, defaultQRCodeOptions, generateQRCodeDataURL } from '@/lib/qrcode';
 import { SketchPicker } from 'react-color';
 import {
@@ -37,6 +37,139 @@ interface QRCodeCustomizerProps {
   onCustomized: (options: QRCodeCustomOptions) => void;
   initialOptions?: Partial<QRCodeCustomOptions>;
 }
+
+// Define style templates for visual selection
+interface StyleTemplate {
+  name: string;
+  description: string;
+  preview: string;
+  options: {
+    style: {
+      dotShape: 'square' | 'rounded' | 'dots';
+      cornerShape: 'square' | 'rounded';
+      cornerDotStyle: 'square' | 'dot';
+    }
+  }
+}
+
+const styleTemplates: StyleTemplate[] = [
+  {
+    name: "Classic",
+    description: "Standard QR code design",
+    preview: "/style-previews/classic.svg", // These would be actual preview images
+    options: {
+      style: {
+        dotShape: 'square',
+        cornerShape: 'square',
+        cornerDotStyle: 'square'
+      }
+    }
+  },
+  {
+    name: "Rounded",
+    description: "Smoother appearance with rounded dots",
+    preview: "/style-previews/rounded.svg",
+    options: {
+      style: {
+        dotShape: 'rounded',
+        cornerShape: 'rounded',
+        cornerDotStyle: 'square'
+      }
+    }
+  },
+  {
+    name: "Dots",
+    description: "Circular dots for a modern look",
+    preview: "/style-previews/dots.svg",
+    options: {
+      style: {
+        dotShape: 'dots',
+        cornerShape: 'square',
+        cornerDotStyle: 'square'
+      }
+    }
+  },
+  {
+    name: "Corner Dots",
+    description: "Special dot style for corners",
+    preview: "/style-previews/corner-dots.svg",
+    options: {
+      style: {
+        dotShape: 'square',
+        cornerShape: 'square',
+        cornerDotStyle: 'dot'
+      }
+    }
+  },
+  {
+    name: "Rounded Dots",
+    description: "Rounded dots with rounded corners",
+    preview: "/style-previews/rounded-dots.svg",
+    options: {
+      style: {
+        dotShape: 'dots',
+        cornerShape: 'rounded',
+        cornerDotStyle: 'dot'
+      }
+    }
+  },
+  {
+    name: "Hybrid",
+    description: "Mix of square and rounded elements",
+    preview: "/style-previews/hybrid.svg",
+    options: {
+      style: {
+        dotShape: 'square',
+        cornerShape: 'rounded',
+        cornerDotStyle: 'dot'
+      }
+    }
+  }
+];
+
+// Mini QR code preview component for style selection
+interface StylePreviewProps {
+  style: StyleTemplate;
+  isSelected: boolean;
+  onClick: () => void;
+  previewUrl: string | null;
+}
+
+function StylePreview({ style, isSelected, onClick, previewUrl }: StylePreviewProps) {
+  return (
+    <div 
+      onClick={onClick}
+      className={`p-2 border rounded-md cursor-pointer transition-all hover:shadow-md ${isSelected ? 'border-primary bg-primary/10 ring-2 ring-primary' : 'border-gray-200'}`}
+    >
+      {/* Fallback to generate preview if image not available */}
+      {previewUrl ? (
+        <img 
+          src={previewUrl} 
+          alt={style.name} 
+          className="w-full h-20 object-contain" 
+        />
+      ) : (
+        <div className="w-full h-20 bg-gray-100 flex items-center justify-center text-gray-400">
+          {style.name}
+        </div>
+      )}
+      <div className="mt-2 text-center">
+        <div className="font-medium text-sm">{style.name}</div>
+        <div className="text-xs text-gray-500">{style.description}</div>
+      </div>
+    </div>
+  );
+}
+
+// Color theme presets
+const colorThemes = [
+  { name: "Classic", dark: "#000000", light: "#ffffff" },
+  { name: "Ocean", dark: "#0063B3", light: "#E6F3FF" },
+  { name: "Forest", dark: "#0F766E", light: "#F0FDFA" },
+  { name: "Sunset", dark: "#BE123C", light: "#FFF1F2" },
+  { name: "Purple", dark: "#7E22CE", light: "#FAF5FF" },
+  { name: "Amber", dark: "#B45309", light: "#FFFBEB" },
+];
 
 export default function QRCodeCustomizer({
   url,
@@ -102,6 +235,43 @@ export default function QRCodeCustomizer({
   });
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
+  
+  // Generate preview images for style templates
+  const [previewImages, setPreviewImages] = useState<Record<number, string>>({});
+  
+  // Generate preview images once when component mounts
+  useEffect(() => {
+    const generatePreviews = async () => {
+      const previewData: Record<number, string> = {};
+      
+      for (let i = 0; i < styleTemplates.length; i++) {
+        const template = styleTemplates[i];
+        try {
+          // Use a simple example URL for all previews
+          const previewUrl = await generateQRCodeDataURL(
+            "https://example.com",
+            {
+              width: 120, // Small size for previews
+              margin: 1,
+              color: { dark: '#000000', light: '#ffffff' },
+              style: {
+                dotShape: template.options.style.dotShape,
+                cornerShape: template.options.style.cornerShape,
+                cornerDotStyle: template.options.style.cornerDotStyle
+              }
+            }
+          );
+          previewData[i] = previewUrl;
+        } catch (error) {
+          console.error(`Failed to generate preview for template ${template.name}:`, error);
+        }
+      }
+      
+      setPreviewImages(previewData);
+    };
+    
+    generatePreviews();
+  }, []);
   
   // Generate the QR code preview whenever options change
   useEffect(() => {
@@ -324,167 +494,159 @@ export default function QRCodeCustomizer({
               </CardContent>
             </Card>
             
-            {/* Color Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Color Settings</CardTitle>
-                <CardDescription>
-                  Customize the colors of your QR code
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="darkColor">Dark Color</Label>
-                  <div className="flex items-center space-x-2">
-                    <div
-                      className="w-10 h-10 rounded-md border cursor-pointer"
-                      style={{ backgroundColor: options.color?.dark || '#000000' }}
-                      onClick={() => 
-                        setIsColorPickerOpen((prev) => ({ ...prev, dark: !prev.dark }))
-                      }
-                    />
-                    <Input
-                      id="darkColor"
-                      value={options.color?.dark || '#000000'}
-                      onChange={(e) => 
-                        handleNestedOptionChange('color', 'dark', e.target.value)
-                      }
-                      className="flex-1"
-                    />
-                  </div>
-                  {isColorPickerOpen.dark && (
-                    <div className="mt-2 absolute z-10">
-                      <div 
-                        className="fixed inset-0" 
-                        onClick={() => 
-                          setIsColorPickerOpen((prev) => ({ ...prev, dark: false }))
-                        }
-                      />
-                      <SketchPicker
-                        color={options.color?.dark || '#000000'}
-                        onChange={(color) => 
-                          handleNestedOptionChange('color', 'dark', color.hex)
-                        }
-                      />
+            {/* Style Settings */}
+            <TabsContent value="style" className="space-y-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>QR Code Style</CardTitle>
+                  <CardDescription>
+                    Choose from pre-defined styles or customize your own
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="mb-4">
+                    <Label className="text-base font-medium mb-3 block">Style Templates</Label>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                      {styleTemplates.map((template, index) => (
+                        <StylePreview
+                          key={index}
+                          style={template}
+                          isSelected={
+                            options.style?.dotShape === template.options.style.dotShape &&
+                            options.style?.cornerShape === template.options.style.cornerShape &&
+                            options.style?.cornerDotStyle === template.options.style.cornerDotStyle
+                          }
+                          onClick={() => {
+                            // Apply this style template
+                            setOptions(prev => ({
+                              ...prev,
+                              style: {
+                                ...prev.style,
+                                dotShape: template.options.style.dotShape,
+                                cornerShape: template.options.style.cornerShape,
+                                cornerDotStyle: template.options.style.cornerDotStyle
+                              }
+                            }));
+                          }}
+                          previewUrl={previewImages[index] || null}
+                        />
+                      ))}
                     </div>
-                  )}
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="lightColor">Light Color</Label>
-                  <div className="flex items-center space-x-2">
-                    <div
-                      className="w-10 h-10 rounded-md border cursor-pointer"
-                      style={{ backgroundColor: options.color?.light || '#FFFFFF' }}
-                      onClick={() => 
-                        setIsColorPickerOpen((prev) => ({ ...prev, light: !prev.light }))
-                      }
-                    />
-                    <Input
-                      id="lightColor"
-                      value={options.color?.light || '#FFFFFF'}
-                      onChange={(e) => 
-                        handleNestedOptionChange('color', 'light', e.target.value)
-                      }
-                      className="flex-1"
-                    />
                   </div>
-                  {isColorPickerOpen.light && (
-                    <div className="mt-2 absolute z-10">
-                      <div 
-                        className="fixed inset-0" 
-                        onClick={() => 
-                          setIsColorPickerOpen((prev) => ({ ...prev, light: false }))
-                        }
-                      />
-                      <SketchPicker
-                        color={options.color?.light || '#FFFFFF'}
-                        onChange={(color) => 
-                          handleNestedOptionChange('color', 'light', color.hex)
-                        }
-                      />
+
+                  <div className="mt-6">
+                    <Label className="text-base font-medium mb-3 block">Color Themes</Label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {colorThemes.map((theme, index) => (
+                        <div
+                          key={index}
+                          className={`p-2 border rounded-md cursor-pointer transition-all ${
+                            options.color?.dark === theme.dark && options.color?.light === theme.light
+                              ? 'border-primary ring-2 ring-primary'
+                              : 'border-gray-200 hover:border-gray-300'
+                          }`}
+                          onClick={() => {
+                            handleNestedOptionChange('color', 'dark', theme.dark);
+                            handleNestedOptionChange('color', 'light', theme.light);
+                          }}
+                        >
+                          <div className="flex space-x-1 mb-1">
+                            <div 
+                              className="w-8 h-8 rounded-md" 
+                              style={{backgroundColor: theme.dark}}
+                            />
+                            <div 
+                              className="w-8 h-8 rounded-md border" 
+                              style={{backgroundColor: theme.light}}
+                            />
+                          </div>
+                          <div className="text-center text-xs font-medium">{theme.name}</div>
+                        </div>
+                      ))}
                     </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          
-          {/* Style Settings */}
-          <TabsContent value="style" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle>Style Settings</CardTitle>
-                <CardDescription>
-                  Customize the appearance of your QR code
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="dotShape">Dot Shape</Label>
-                  <Select
-                    value={options.style?.dotShape || 'square'}
-                    onValueChange={(value) => 
-                      handleNestedOptionChange('style', 'dotShape', value as 'square' | 'rounded' | 'dots')
-                    }
-                  >
-                    <SelectTrigger id="dotShape">
-                      <SelectValue placeholder="Select shape" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Dot Shape</SelectLabel>
-                        <SelectItem value="square">Square</SelectItem>
-                        <SelectItem value="rounded">Rounded</SelectItem>
-                        <SelectItem value="dots">Dots</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="cornerShape">Corner Shape</Label>
-                  <Select
-                    value={options.style?.cornerShape || 'square'}
-                    onValueChange={(value) => 
-                      handleNestedOptionChange('style', 'cornerShape', value as 'square' | 'rounded')
-                    }
-                  >
-                    <SelectTrigger id="cornerShape">
-                      <SelectValue placeholder="Select shape" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Corner Shape</SelectLabel>
-                        <SelectItem value="square">Square</SelectItem>
-                        <SelectItem value="rounded">Rounded</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="cornerDotStyle">Corner Dot Style</Label>
-                  <Select
-                    value={options.style?.cornerDotStyle || 'square'}
-                    onValueChange={(value) => 
-                      handleNestedOptionChange('style', 'cornerDotStyle', value as 'square' | 'dot')
-                    }
-                  >
-                    <SelectTrigger id="cornerDotStyle">
-                      <SelectValue placeholder="Select style" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Corner Dot Style</SelectLabel>
-                        <SelectItem value="square">Square</SelectItem>
-                        <SelectItem value="dot">Dot</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
+                  </div>
+
+                  <div className="mt-6">
+                    <Label className="text-base font-medium mb-2 block">Custom Color Adjustments</Label>
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="darkColor" className="text-sm">Dark Color</Label>
+                        <div className="flex items-center space-x-2">
+                          <div
+                            className="w-10 h-10 rounded-md border cursor-pointer"
+                            style={{ backgroundColor: options.color?.dark || '#000000' }}
+                            onClick={() => 
+                              setIsColorPickerOpen((prev) => ({ ...prev, dark: !prev.dark }))
+                            }
+                          />
+                          <Input
+                            id="darkColor"
+                            value={options.color?.dark || '#000000'}
+                            onChange={(e) => 
+                              handleNestedOptionChange('color', 'dark', e.target.value)
+                            }
+                            className="flex-1"
+                          />
+                        </div>
+                        {isColorPickerOpen.dark && (
+                          <div className="mt-2 absolute z-10">
+                            <div 
+                              className="fixed inset-0" 
+                              onClick={() => 
+                                setIsColorPickerOpen((prev) => ({ ...prev, dark: false }))
+                              }
+                            />
+                            <SketchPicker
+                              color={options.color?.dark || '#000000'}
+                              onChange={(color) => 
+                                handleNestedOptionChange('color', 'dark', color.hex)
+                              }
+                            />
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="lightColor" className="text-sm">Light Color</Label>
+                        <div className="flex items-center space-x-2">
+                          <div
+                            className="w-10 h-10 rounded-md border cursor-pointer"
+                            style={{ backgroundColor: options.color?.light || '#FFFFFF' }}
+                            onClick={() => 
+                              setIsColorPickerOpen((prev) => ({ ...prev, light: !prev.light }))
+                            }
+                          />
+                          <Input
+                            id="lightColor"
+                            value={options.color?.light || '#FFFFFF'}
+                            onChange={(e) => 
+                              handleNestedOptionChange('color', 'light', e.target.value)
+                            }
+                            className="flex-1"
+                          />
+                        </div>
+                        {isColorPickerOpen.light && (
+                          <div className="mt-2 absolute z-10">
+                            <div 
+                              className="fixed inset-0" 
+                              onClick={() => 
+                                setIsColorPickerOpen((prev) => ({ ...prev, light: false }))
+                              }
+                            />
+                            <SketchPicker
+                              color={options.color?.light || '#FFFFFF'}
+                              onChange={(color) => 
+                                handleNestedOptionChange('color', 'light', color.hex)
+                              }
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
           </TabsContent>
           
           {/* Logo Settings */}

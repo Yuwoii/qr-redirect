@@ -34,11 +34,14 @@ This roadmap outlines the planned improvements and feature additions to transfor
 
 ## Current Priorities (Next 2 Weeks)
 
-- [ ] **Enhanced QR Code Customization**
-  - [ ] Implement custom colors for QR codes
-  - [ ] Add logo embedding functionality
-  - [ ] Create multiple QR code style templates
-  - [ ] Add corner style and shape customization options
+- [x] **Enhanced QR Code Customization** *(Completed: May 22, 2024)*
+  - [x] Implement custom colors for QR codes
+  - [x] Add logo embedding functionality
+  - [x] Create multiple QR code style templates
+  - [x] Add corner style and shape customization options
+  - [x] Add dedicated customization page in the dashboard
+  - [x] Implement real-time QR code preview with customization options
+  - [x] Create component for downloading customized QR codes
 
 - [ ] **Analytics Dashboard Improvements**
   - [ ] Implement basic scan tracking and visualization
@@ -84,11 +87,11 @@ This roadmap outlines the planned improvements and feature additions to transfor
   - Add bulk operations for QR codes and redirects
   - Implement drag-and-drop interface for QR code management
 
-- [ ] **QR Code Customization**
-  - Custom colors and styles for QR codes
-  - Logo embedding in QR codes
-  - Multiple design templates for QR codes
-  - QR code corner styles and shape options
+- [x] **QR Code Customization** *(Completed: March 25, 2025)*
+  - [x] Custom colors and styles for QR codes
+  - [x] Logo embedding in QR codes
+  - [x] Multiple design templates for QR codes
+  - [x] QR code corner styles and shape options
 
 - [ ] **Analytics Expansion**
   - Add geographic data for scans

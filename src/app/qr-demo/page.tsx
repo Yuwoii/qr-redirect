@@ -18,7 +18,7 @@ export default function QRDemo() {
 
   return (
     <div className="container mx-auto py-10 px-4">
-      <h1 className="text-3xl font-bold mb-6 text-center">QR Code Customizer</h1>
+      <h1 className="text-3xl font-bold mb-2 text-center">QR Code Customizer</h1>
       <p className="text-center mb-8 text-gray-600 max-w-2xl mx-auto">
         Generate and customize your QR codes with our advanced tools. Add logos, change colors, and style your QR codes to match your brand.
       </p>
@@ -77,16 +77,16 @@ export default function QRDemo() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-1">
-                <h3 className="font-medium">Basic Customization</h3>
+                <h3 className="font-medium">Visual Style Gallery</h3>
                 <p className="text-sm text-gray-600">
-                  Change size, margin, and error correction level.
+                  Choose from pre-designed styles with a single click.
                 </p>
               </div>
               
               <div className="space-y-1">
-                <h3 className="font-medium">Styling Options</h3>
+                <h3 className="font-medium">Color Themes</h3>
                 <p className="text-sm text-gray-600">
-                  Choose different shapes for dots and corners, customize colors.
+                  Apply professionally designed color combinations.
                 </p>
               </div>
               
@@ -105,54 +105,6 @@ export default function QRDemo() {
               </div>
             </CardContent>
           </Card>
-        </div>
-        
-        <div className="mt-12 text-center">
-          <h2 className="text-2xl font-bold mb-6">QR Code Style Examples</h2>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
-            <div className="flex flex-col items-center">
-              <EnhancedQRCode
-                url="https://example.com/style1"
-                size={150}
-                initialOptions={{
-                  color: { dark: '#0f766e', light: '#f0fdfa' },
-                  style: { dotShape: 'rounded', cornerShape: 'rounded' }
-                }}
-                showCustomizeButton={false}
-                showDownloadButton={false}
-              />
-              <p className="mt-2 text-sm font-medium">Rounded Style</p>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              <EnhancedQRCode
-                url="https://example.com/style2"
-                size={150}
-                initialOptions={{
-                  color: { dark: '#7e22ce', light: '#faf5ff' },
-                  style: { dotShape: 'dots', cornerShape: 'rounded' }
-                }}
-                showCustomizeButton={false}
-                showDownloadButton={false}
-              />
-              <p className="mt-2 text-sm font-medium">Dots Style</p>
-            </div>
-            
-            <div className="flex flex-col items-center">
-              <EnhancedQRCode
-                url="https://example.com/style3"
-                size={150}
-                initialOptions={{
-                  color: { dark: '#be123c', light: '#fff1f2' },
-                  style: { dotShape: 'square', cornerShape: 'square', cornerDotStyle: 'dot' }
-                }}
-                showCustomizeButton={false}
-                showDownloadButton={false}
-              />
-              <p className="mt-2 text-sm font-medium">Corner Dots Style</p>
-            </div>
-          </div>
         </div>
       </div>
     </div>

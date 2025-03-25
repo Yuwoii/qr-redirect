@@ -261,7 +261,7 @@ model Redirect {
    
 2. **QRCodeCustomizer**: UI component for customizing QR codes
    - Color selection with color picker
-   - Style options via dropdowns and toggles
+   - Visual style selection with interactive examples
    - Logo upload and positioning
    - Live preview of customizations
    - Tabs for organizing customization options
@@ -269,13 +269,13 @@ model Redirect {
 3. **QR Customization Page**: Dedicated page for QR code customization
    - Full-screen customization interface
    - Real-time preview of changes
-   - Advanced styling options
+   - Visual style gallery with interactive examples
    - Direct download capabilities
    
 ### Customization Features
 - **Color Options**: Customize foreground and background colors with color picker
-- **Shape Options**: Square, rounded, or dots for QR code modules
-- **Corner Styles**: Square or rounded corners with custom corner dot styles
+- **Visual Style Gallery**: Interactive examples of style combinations that can be applied with a single click
+- **Pre-defined Style Templates**: Ready-to-use style configurations with visual previews
 - **Logo Integration**: Upload and embed logos with customizable size, opacity, and border options
 - **Size & Margin**: Adjustable QR code size and margin settings
 - **Error Correction**: Configurable error correction levels to balance density and scan reliability
