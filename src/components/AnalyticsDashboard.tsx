@@ -8,6 +8,14 @@ const AnalyticsDashboard: React.FC = () => {
   const toggleView = () => {
     setCurrentView(currentView === 'standard' ? 'swiss' : 'standard');
   };
+  
+  // Define color schemes for Swiss engagement section consistent with analytics
+  const timeColors = {
+    morning: "bg-amber-500",    // Morning - amber/yellow like sunrise
+    afternoon: "bg-orange-500", // Afternoon - orange like midday sun
+    evening: "bg-violet-600",   // Evening - violet/purple like sunset
+    night: "bg-indigo-800"      // Night - dark blue/indigo like night sky
+  };
 
   return (
     <>
@@ -139,7 +147,7 @@ const AnalyticsDashboard: React.FC = () => {
           <div className="flex justify-between items-center mb-4">
             <div>
               <h4 className="font-semibold text-gray-800">Swiss Engagement System</h4>
-              <p className="text-xs text-gray-500">Advanced user engagement metrics</p>
+              <p className="text-xs text-gray-500">Special focus on Swiss visitors</p>
             </div>
             <div className="flex space-x-2">
               <div className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">
@@ -151,107 +159,97 @@ const AnalyticsDashboard: React.FC = () => {
             </div>
           </div>
           
-          {/* Engagement Metrics */}
-          <div className="mb-6">
-            <div className="flex justify-between text-xs text-gray-500 mb-1">
-              <span>Engagement Score</span>
-              <span>Q2 2025</span>
-            </div>
-            <div className="h-32 bg-white rounded-lg flex-1 relative overflow-hidden">
-              {/* Engagement Meter */}
-              <div className="absolute inset-x-0 bottom-0 h-full bg-gradient-to-t from-green-500 to-green-300 opacity-20"></div>
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-gray-800">87.3</div>
-                  <div className="text-xs text-gray-500">Excellent</div>
-                </div>
-              </div>
-              
-              {/* Radial Progress Indicators */}
-              <div className="absolute top-2 left-2 w-10 h-10 rounded-full border-4 border-green-500 flex items-center justify-center">
-                <span className="text-xs font-medium">92%</span>
-              </div>
-              <div className="absolute top-2 right-2 w-10 h-10 rounded-full border-4 border-blue-500 flex items-center justify-center">
-                <span className="text-xs font-medium">85%</span>
-              </div>
-              <div className="absolute bottom-2 left-2 w-10 h-10 rounded-full border-4 border-yellow-500 flex items-center justify-center">
-                <span className="text-xs font-medium">78%</span>
-              </div>
-              <div className="absolute bottom-2 right-2 w-10 h-10 rounded-full border-4 border-purple-500 flex items-center justify-center">
-                <span className="text-xs font-medium">89%</span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Channel Performance */}
+          {/* Primary Languages Used */}
           <div className="mb-4">
-            <h5 className="text-xs font-medium text-gray-700 mb-2">Channel Performance</h5>
-            <div className="space-y-2">
-              <div className="w-full">
-                <div className="flex justify-between text-xs mb-1">
-                  <span>Direct Scan</span>
-                  <span className="font-medium">78%</span>
+            <div className="mb-2 flex justify-between text-xs text-gray-500">
+              <span>Primary Language Used</span>
+              <span>Based on visitor browser settings</span>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { lang: "German", percent: 65, color: "bg-blue-600" },
+                { lang: "French", percent: 22, color: "bg-red-600" },
+                { lang: "Italian", percent: 8, color: "bg-green-600" },
+                { lang: "English", percent: 5, color: "bg-yellow-600" }
+              ].map((item, index) => (
+                <div key={index} className="flex flex-col p-2 border rounded bg-white">
+                  <span className="text-xs font-medium">{item.lang}</span>
+                  <div className="w-full bg-gray-200 rounded-full h-1.5 my-1">
+                    <div className={`${item.color} h-1.5 rounded-full`} style={{ width: `${item.percent}%` }}></div>
+                  </div>
+                  <span className="text-[10px]">{item.percent}%</span>
                 </div>
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div className="h-full bg-indigo-600 rounded-full" style={{ width: '78%' }}></div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Urban vs Rural and Time of Day */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="border rounded p-3 bg-white">
+              <h5 className="text-xs font-medium text-gray-700 mb-2">Urban vs. Rural Distribution</h5>
+              <div className="flex items-center mt-2">
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-sky-600 h-2 rounded-full" style={{ width: "72%" }}></div>
+                </div>
+                <div className="ml-2 min-w-[60px] text-xs">
+                  72% Urban
                 </div>
               </div>
-              <div className="w-full">
-                <div className="flex justify-between text-xs mb-1">
-                  <span>Social Media</span>
-                  <span className="font-medium">64%</span>
+              <div className="flex items-center mt-1">
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div className="bg-emerald-600 h-2 rounded-full" style={{ width: "28%" }}></div>
                 </div>
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div className="h-full bg-purple-600 rounded-full" style={{ width: '64%' }}></div>
+                <div className="ml-2 min-w-[60px] text-xs">
+                  28% Rural
                 </div>
               </div>
-              <div className="w-full">
-                <div className="flex justify-between text-xs mb-1">
-                  <span>Print Material</span>
-                  <span className="font-medium">92%</span>
-                </div>
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                  <div className="h-full bg-green-600 rounded-full" style={{ width: '92%' }}></div>
-                </div>
+            </div>
+            
+            <div className="border rounded p-3 bg-white">
+              <h5 className="text-xs font-medium text-gray-700 mb-2">Traffic by Time of Day</h5>
+              <div className="space-y-1">
+                {[
+                  { time: "Morning (6-12)", percent: 32, color: timeColors.morning },
+                  { time: "Afternoon (12-18)", percent: 45, color: timeColors.afternoon },
+                  { time: "Evening (18-24)", percent: 18, color: timeColors.evening },
+                  { time: "Night (0-6)", percent: 5, color: timeColors.night }
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center">
+                    <div className="w-2/5 text-[10px] truncate">{item.time}</div>
+                    <div className="w-3/5 pl-1">
+                      <div className="w-full bg-gray-200 rounded-full h-1.5">
+                        <div 
+                          className={`${item.color} h-1.5 rounded-full`} 
+                          style={{ width: `${item.percent}%` }}
+                        ></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
           
-          {/* Engagement KPIs */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-50 p-3 rounded">
-              <h5 className="text-xs font-medium text-gray-700 mb-2">User Retention</h5>
-              <div className="space-y-1 text-xs">
-                <div className="flex justify-between">
-                  <span>Repeat Visits</span>
-                  <span className="font-medium">65%</span>
+          {/* Canton Distribution */}
+          <div className="mb-4">
+            <h5 className="text-xs font-medium text-gray-700 mb-2">Top Cantons</h5>
+            <div className="grid grid-cols-2 gap-2">
+              {[
+                { name: "Zürich (ZH)", percent: 28, visits: 568 },
+                { name: "Bern (BE)", percent: 15, visits: 312 },
+                { name: "Geneva (GE)", percent: 13, visits: 265 },
+                { name: "Vaud (VD)", percent: 11, visits: 218 },
+                { name: "Basel-Stadt (BS)", percent: 8, visits: 162 },
+                { name: "Ticino (TI)", percent: 7, visits: 143 }
+              ].map((canton, index) => (
+                <div key={index} className="flex items-center justify-between p-2 border rounded bg-white">
+                  <div className="text-xs">{canton.name}</div>
+                  <div className="flex flex-col items-end">
+                    <span className="text-xs font-medium">{canton.visits}</span>
+                    <span className="text-[10px] text-gray-500">{canton.percent}%</span>
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span>Session Duration</span>
-                  <span className="font-medium">4m 32s</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Bounce Rate</span>
-                  <span className="font-medium">17.8%</span>
-                </div>
-              </div>
-            </div>
-            <div className="bg-gray-50 p-3 rounded">
-              <h5 className="text-xs font-medium text-gray-700 mb-2">Conversion Metrics</h5>
-              <div className="space-y-1 text-xs">
-                <div className="flex justify-between">
-                  <span>Goal Completion</span>
-                  <span className="font-medium">28.5%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Interaction Rate</span>
-                  <span className="font-medium">73.2%</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Acquisition Cost</span>
-                  <span className="font-medium">$1.24</span>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>

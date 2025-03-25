@@ -386,68 +386,68 @@ export default async function Home() {
             </div>
           </div>
           
-          {/* Gradient Purple */}
+          {/* Ocean Blue */}
           <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
             <img 
-              src="/verification-results/gradient-purple.png" 
-              alt="Gradient Purple QR Code" 
+              src="/verification-results/ocean-blue.png" 
+              alt="Ocean Blue QR Code" 
               className="w-full object-contain h-48" 
             />
             <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-900">Gradient Purple</h3>
-              <p className="text-sm text-gray-500">Modern and eye-catching</p>
+              <h3 className="text-lg font-medium text-gray-900">Ocean Blue</h3>
+              <p className="text-sm text-gray-500">Professional and trustworthy</p>
             </div>
           </div>
           
-          {/* Rounded Green */}
+          {/* Forest Green */}
           <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
             <img 
-              src="/verification-results/rounded-green.png" 
-              alt="Rounded Green QR Code" 
+              src="/verification-results/forest-green.png" 
+              alt="Forest Green QR Code" 
               className="w-full object-contain h-48" 
             />
             <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-900">Rounded Green</h3>
-              <p className="text-sm text-gray-500">Friendly and approachable</p>
+              <h3 className="text-lg font-medium text-gray-900">Forest Green</h3>
+              <p className="text-sm text-gray-500">Eco-friendly and natural</p>
             </div>
           </div>
           
-          {/* Dot Pattern */}
+          {/* Sunset Red */}
           <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
             <img 
-              src="/verification-results/dot-pattern.png" 
-              alt="Dot Pattern QR Code" 
+              src="/verification-results/sunset-red.png" 
+              alt="Sunset Red QR Code" 
               className="w-full object-contain h-48" 
             />
             <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-900">Dot Pattern</h3>
-              <p className="text-sm text-gray-500">Stylish and distinctive</p>
+              <h3 className="text-lg font-medium text-gray-900">Sunset Red</h3>
+              <p className="text-sm text-gray-500">Bold and attention-grabbing</p>
             </div>
           </div>
           
-          {/* Frame Style */}
+          {/* Purple */}
           <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
             <img 
-              src="/verification-results/frame-style.png" 
-              alt="Frame Style QR Code" 
+              src="/verification-results/dots-purple.png" 
+              alt="Purple Dots QR Code" 
               className="w-full object-contain h-48" 
             />
             <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-900">Frame Style</h3>
-              <p className="text-sm text-gray-500">Professional and branded</p>
+              <h3 className="text-lg font-medium text-gray-900">Purple Dots</h3>
+              <p className="text-sm text-gray-500">Creative and distinctive</p>
             </div>
           </div>
           
-          {/* Logo Integrated */}
+          {/* Amber */}
           <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
             <img 
-              src="/verification-results/logo-integrated.png" 
-              alt="Logo Integrated QR Code" 
+              src="/verification-results/amber-gold.png" 
+              alt="Amber Gold QR Code" 
               className="w-full object-contain h-48" 
             />
             <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-900">Logo Integrated</h3>
-              <p className="text-sm text-gray-500">Brand-focused design</p>
+              <h3 className="text-lg font-medium text-gray-900">Amber Gold</h3>
+              <p className="text-sm text-gray-500">Warm and premium feel</p>
             </div>
           </div>
         </div>
