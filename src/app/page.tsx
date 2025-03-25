@@ -89,24 +89,52 @@ export default async function Home() {
               <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-10 flex items-center justify-center">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="bg-white p-4 rounded-lg shadow-md">
-                    <div className="aspect-square w-full bg-gray-100 rounded flex items-center justify-center text-gray-400">
-                      QR Classic
+                    <div className="aspect-square w-full rounded flex items-center justify-center">
+                      <Image 
+                        src="/style-previews/classic.svg" 
+                        alt="Classic QR Code Style" 
+                        width={120} 
+                        height={120} 
+                        className="w-full h-full object-contain"
+                      />
                     </div>
+                    <p className="text-center text-sm font-medium text-gray-700 mt-2">Classic Style</p>
                   </div>
                   <div className="bg-white p-4 rounded-lg shadow-md">
-                    <div className="aspect-square w-full bg-gray-100 rounded flex items-center justify-center text-gray-400">
-                      QR Rounded
+                    <div className="aspect-square w-full rounded flex items-center justify-center">
+                      <Image 
+                        src="/style-previews/rounded.svg" 
+                        alt="Rounded QR Code Style" 
+                        width={120} 
+                        height={120} 
+                        className="w-full h-full object-contain"
+                      />
                     </div>
+                    <p className="text-center text-sm font-medium text-gray-700 mt-2">Rounded Style</p>
                   </div>
                   <div className="bg-white p-4 rounded-lg shadow-md">
-                    <div className="aspect-square w-full bg-gray-100 rounded flex items-center justify-center text-gray-400">
-                      QR Dots
+                    <div className="aspect-square w-full rounded flex items-center justify-center">
+                      <Image 
+                        src="/style-previews/dots.svg" 
+                        alt="Dots QR Code Style" 
+                        width={120} 
+                        height={120} 
+                        className="w-full h-full object-contain"
+                      />
                     </div>
+                    <p className="text-center text-sm font-medium text-gray-700 mt-2">Dots Style</p>
                   </div>
                   <div className="bg-white p-4 rounded-lg shadow-md">
-                    <div className="aspect-square w-full bg-gray-100 rounded flex items-center justify-center text-gray-400">
-                      QR Forest
+                    <div className="aspect-square w-full rounded flex items-center justify-center">
+                      <Image 
+                        src="/style-previews/hybrid.svg" 
+                        alt="Hybrid QR Code Style" 
+                        width={120} 
+                        height={120} 
+                        className="w-full h-full object-contain"
+                      />
                     </div>
+                    <p className="text-center text-sm font-medium text-gray-700 mt-2">Hybrid Style</p>
                   </div>
                 </div>
               </div>
@@ -230,8 +258,48 @@ export default async function Home() {
                 </div>
               </div>
               <div className="p-6">
-                <div className="w-full h-64 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
-                  Analytics Dashboard Preview
+                <div className="w-full h-64 bg-white rounded-lg flex flex-col">
+                  {/* Mock Analytics Chart */}
+                  <div className="flex justify-between items-center mb-4">
+                    <h4 className="font-semibold text-gray-800">Scan Activity</h4>
+                    <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Last 30 days</div>
+                  </div>
+                  
+                  <div className="flex-1 relative">
+                    {/* Chart Background Grid */}
+                    <div className="absolute inset-0 grid grid-cols-7 grid-rows-4">
+                      {Array(28).fill(0).map((_, i) => (
+                        <div key={i} className="border-b border-r border-gray-100"></div>
+                      ))}
+                    </div>
+                    
+                    {/* Chart Data */}
+                    <div className="absolute bottom-0 left-0 right-0 h-32 flex items-end">
+                      {[15, 22, 18, 26, 12, 28, 19, 25, 30, 22, 15, 20, 24, 19, 14].map((value, index) => (
+                        <div 
+                          key={index} 
+                          className="flex-1 mx-0.5 bg-gradient-to-t from-indigo-600 to-purple-500 rounded-t" 
+                          style={{ height: `${(value / 30) * 100}%` }}
+                        ></div>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Mock Stats */}
+                  <div className="grid grid-cols-3 gap-4 mt-4 text-center">
+                    <div className="bg-gray-50 p-2 rounded">
+                      <div className="text-lg font-bold text-indigo-700">247</div>
+                      <div className="text-xs text-gray-500">Total Scans</div>
+                    </div>
+                    <div className="bg-gray-50 p-2 rounded">
+                      <div className="text-lg font-bold text-indigo-700">18</div>
+                      <div className="text-xs text-gray-500">Countries</div>
+                    </div>
+                    <div className="bg-gray-50 p-2 rounded">
+                      <div className="text-lg font-bold text-indigo-700">68%</div>
+                      <div className="text-xs text-gray-500">Mobile</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -307,10 +375,15 @@ export default async function Home() {
         </div>
       </section>
       
-      {/* Footer */}
+      {/* Footer - Fixed the duplicate copyright issue */}
       <footer className="w-full py-8 bg-gray-50 border-t border-gray-200">
-        <div className="container mx-auto px-6 text-center text-gray-600 text-sm">
-          <p>&copy; {new Date().getFullYear()} QR Redirect. All rights reserved.</p>
+        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
+          <p className="text-gray-600 text-sm">&copy; {new Date().getFullYear()} QR Redirect. All rights reserved.</p>
+          <div className="flex space-x-6 mt-4 md:mt-0">
+            <a href="#" className="text-gray-600 hover:text-indigo-700 transition-colors text-sm">Privacy Policy</a>
+            <a href="#" className="text-gray-600 hover:text-indigo-700 transition-colors text-sm">Terms of Service</a>
+            <a href="#" className="text-gray-600 hover:text-indigo-700 transition-colors text-sm">Contact Us</a>
+          </div>
         </div>
       </footer>
     </div>
