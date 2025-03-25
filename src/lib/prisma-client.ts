@@ -18,6 +18,17 @@ interface PrismaError extends Error {
   meta?: Record<string, unknown>;
 }
 
+// Database configuration interface
+interface DatabaseConfig {
+  url: string;
+  provider: 'sqlite' | 'postgresql' | 'mysql' | 'sqlserver';
+  poolConfig?: {
+    min: number;
+    max: number;
+    idle: number;
+  };
+}
+
 // Error codes that are worth retrying
 export enum PrismaErrorType {
   CONNECTION_ERROR = 'P1001', // Connection error
@@ -50,28 +61,135 @@ const DEFAULT_RETRY_OPTIONS: RetryOptions = {
 let prismaClient: PrismaClient | undefined;
 
 /**
+ * Determines the appropriate database configuration based on environment
+ * @returns Database configuration object with URL and connection parameters
+ */
+function getDatabaseConfig(): DatabaseConfig {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isVercel = process.env.VERCEL === '1';
+  
+  // Default SQLite configuration for development
+  const defaultConfig: DatabaseConfig = {
+    url: process.env.DATABASE_URL || 'file:./prisma/dev.db',
+    provider: 'sqlite'
+  };
+  
+  // Supabase PostgreSQL configuration for production
+  if (isProduction) {
+    const postgresUrl = process.env.POSTGRES_PRISMA_URL || 
+                        process.env.DATABASE_URL;
+    
+    // For non-pooled connections (useful for serverless/edge functions)
+    const nonPoolingUrl = process.env.POSTGRES_URL_NON_POOLING || postgresUrl;
+    
+    // If we have a PostgreSQL URL, use it
+    if (postgresUrl) {
+      logger.info('Using PostgreSQL database connection for production', 'getDatabaseConfig');
+      
+      // Ensure URL is defined before returning
+      const finalUrl = isVercel && nonPoolingUrl ? nonPoolingUrl : postgresUrl;
+      
+      if (!finalUrl) {
+        logger.warn('No valid PostgreSQL URL found, falling back to SQLite', 'getDatabaseConfig');
+        return defaultConfig;
+      }
+      
+      return {
+        url: finalUrl,
+        provider: 'postgresql',
+        // Add connection pooling configuration for production
+        poolConfig: isVercel ? undefined : {
+          min: 2,
+          max: 10,
+          idle: 10000 // 10 seconds
+        }
+      };
+    } else {
+      logger.warn('No PostgreSQL URL found for production, falling back to SQLite', 'getDatabaseConfig');
+    }
+  }
+  
+  logger.info('Using SQLite database connection for development', 'getDatabaseConfig');
+  return defaultConfig;
+}
+
+/**
  * Creates a new PrismaClient instance with optimized connection parameters
  */
 export function createPrismaClient(): PrismaClient {
   logger.info('Creating new PrismaClient instance', 'createPrismaClient');
   
-  // Get the SQLite database URL from environment variables
-  // Default to a local file path if not provided
-  const databaseUrl = process.env.DATABASE_URL || 'file:./prisma/dev.db';
+  const dbConfig = getDatabaseConfig();
   
-  logger.debug(`Using database URL: ${databaseUrl}`, 'createPrismaClient');
+  logger.debug(`Using database URL: ${dbConfig.url}`, 'createPrismaClient');
   
-  return new PrismaClient({
+  const prismaOptions: any = {
     log: process.env.NODE_ENV === 'development' 
       ? ['error', 'warn'] 
       : ['error'],
     datasources: {
       db: {
-        url: databaseUrl
+        url: dbConfig.url
       }
     },
     errorFormat: 'pretty'
-  });
+  };
+  
+  // Add connection pool options if available
+  if (dbConfig.poolConfig) {
+    prismaOptions.connectionLimit = dbConfig.poolConfig;
+  }
+  
+  return new PrismaClient(prismaOptions);
+}
+
+/**
+ * Initializes the database connection and attempts connection
+ * Returns true if successful, false otherwise
+ */
+export async function initializeDatabase(): Promise<boolean> {
+  logger.info('Initializing database connection', 'initializeDatabase');
+  
+  try {
+    await waitForDatabaseReady();
+    logger.info('Database initialization completed successfully', 'initializeDatabase');
+    return true;
+  } catch (error) {
+    logger.error(`Database initialization failed: ${error}`, 'initializeDatabase');
+    return false;
+  }
+}
+
+/**
+ * Wait for the database to be ready with retry
+ */
+export async function waitForDatabaseReady(maxAttempts = 5): Promise<void> {
+  logger.info(`Waiting for database to be ready (max ${maxAttempts} attempts)`, 'waitForDatabaseReady');
+  
+  let attempts = 0;
+  const startTime = Date.now();
+  
+  while (attempts < maxAttempts) {
+    attempts++;
+    
+    try {
+      // Try a simple query to see if the database is ready
+      await getPrismaClient().$queryRaw`SELECT 1`;
+      const elapsed = Date.now() - startTime;
+      logger.info(`Database ready after ${attempts} attempt(s) in ${elapsed}ms`, 'waitForDatabaseReady');
+      return;
+    } catch (error) {
+      if (attempts >= maxAttempts) {
+        throw new Error(`Database not ready after ${maxAttempts} attempts`);
+      }
+      
+      logger.warn(`Database not ready (attempt ${attempts}/${maxAttempts}): ${error}`, 'waitForDatabaseReady');
+      
+      // Exponential backoff
+      const delay = Math.min(100 * Math.pow(2, attempts), 2000);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
 }
 
 /**
@@ -125,6 +243,11 @@ export async function executeWithRetry<T>(
     }
   }, retryOptions);
 }
+
+// Initialize the database on module load
+initializeDatabase().catch(error => {
+  logger.error(`Failed to initialize database: ${error}`, 'moduleInit');
+});
 
 // Get singleton client
 const prisma = getPrismaClient();

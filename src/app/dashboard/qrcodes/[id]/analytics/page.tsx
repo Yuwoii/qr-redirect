@@ -203,6 +203,14 @@ async function QRCodeAnalyticsContent({ params }: QRCodeAnalyticsPageProps) {
     swissCantonData[largestCanton] -= (totalCantonVisits - swissTotalVisits);
   }
   
+  // Define color schemes for Swiss engagement section
+  const timeColors = {
+    morning: "bg-amber-500",    // Morning - amber/yellow like sunrise
+    afternoon: "bg-orange-500", // Afternoon - orange like midday sun
+    evening: "bg-violet-600",   // Evening - violet/purple like sunset
+    night: "bg-indigo-800"      // Night - dark blue/indigo like night sky
+  };
+  
   return (
     <div>
       <div className="mb-8">
@@ -447,7 +455,7 @@ async function QRCodeAnalyticsContent({ params }: QRCodeAnalyticsPageProps) {
                 <h3 className="text-sm font-medium mb-2">Urban vs. Rural Distribution</h3>
                 <div className="flex items-center mt-4">
                   <div className="w-full bg-gray-200 rounded-full h-3">
-                    <div className="bg-indigo-700 h-3 rounded-full" style={{ width: "72%" }}></div>
+                    <div className="bg-sky-600 h-3 rounded-full" style={{ width: "72%" }}></div>
                   </div>
                   <div className="ml-4 min-w-[100px] text-sm">
                     72% Urban
@@ -467,17 +475,17 @@ async function QRCodeAnalyticsContent({ params }: QRCodeAnalyticsPageProps) {
                 <h3 className="text-sm font-medium mb-2">Traffic by Time of Day</h3>
                 <div className="space-y-2 mt-4">
                   {[
-                    { time: "Morning (6-12)", percent: 32 },
-                    { time: "Afternoon (12-18)", percent: 45 },
-                    { time: "Evening (18-24)", percent: 18 },
-                    { time: "Night (0-6)", percent: 5 }
+                    { time: "Morning (6-12)", percent: 32, color: timeColors.morning },
+                    { time: "Afternoon (12-18)", percent: 45, color: timeColors.afternoon },
+                    { time: "Evening (18-24)", percent: 18, color: timeColors.evening },
+                    { time: "Night (0-6)", percent: 5, color: timeColors.night }
                   ].map((item, index) => (
                     <div key={index} className="flex items-center">
                       <div className="w-1/3 text-xs">{item.time}</div>
                       <div className="w-2/3">
                         <div className="w-full bg-gray-200 rounded-full h-2">
                           <div 
-                            className="bg-indigo-700 h-2 rounded-full" 
+                            className={`${item.color} h-2 rounded-full`} 
                             style={{ width: `${item.percent}%` }}
                           ></div>
                         </div>
