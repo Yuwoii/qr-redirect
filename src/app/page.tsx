@@ -39,7 +39,7 @@ export default async function Home() {
                   href="/login" 
                   className="bg-white text-gray-800 px-8 py-4 rounded-lg font-medium hover:bg-gray-50 transition-all duration-300 border border-gray-200 shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                 >
-                  Sign In
+                  Log In
                 </Link>
               </>
             )}
@@ -65,7 +65,7 @@ export default async function Home() {
                     <svg className="w-5 h-5 text-indigo-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"></path>
                     </svg>
-                    Multiple style templates (Classic, Rounded, Dots, Forest)
+                    Multiple style templates (Classic, Rounded, Dots, etc.)
                   </li>
                   <li className="flex items-center text-gray-700">
                     <svg className="w-5 h-5 text-indigo-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
@@ -151,7 +151,7 @@ export default async function Home() {
                   </div>
                   <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
-                      <Image 
+        <Image
                         src="/verification-results/classic-black.png" 
                         alt="Classic QR Code Style (Black)" 
                         width={100} 
@@ -214,7 +214,7 @@ export default async function Home() {
       </section>
       
       {/* Analytics Showcase */}
-      <section className="w-full py-20 bg-gradient-to-b from-white to-gray-50 border-t border-gray-100">
+      <section className="w-full py-20 bg-gradient-to-b from-white to-gray-50 border-t border-gray-100 analytics-section">
         <div className="container mx-auto px-6">
           <div className="flex flex-col lg:flex-row items-center gap-12">
             <div className="lg:w-1/2">
@@ -258,7 +258,7 @@ export default async function Home() {
                     <h4 className="font-medium text-gray-900">Time-Based Analysis</h4>
                     <p className="text-gray-600 mt-1">Track usage patterns over time to optimize your campaigns.</p>
                   </div>
-                </li>
+          </li>
                 
                 <li className="flex items-start">
                   <div className="bg-indigo-100 p-1 rounded mt-1 mr-4">
@@ -270,7 +270,7 @@ export default async function Home() {
                     <h4 className="font-medium text-gray-900">Export Capabilities</h4>
                     <p className="text-gray-600 mt-1">Download your data for further analysis or reporting needs.</p>
                   </div>
-                </li>
+          </li>
               </ul>
             </div>
             
@@ -360,114 +360,6 @@ export default async function Home() {
           </Link>
         </div>
       </section>
-      
-      {/* QR Code Styles */}
-      <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            QR Code Styles
-          </h2>
-          <p className="mt-3 text-lg text-gray-500">
-            Choose from our professionally designed QR code styles
-          </p>
-        </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
-          {/* Classic Black */}
-          <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <img 
-              src="/verification-results/classic-black.png" 
-              alt="Classic Black QR Code" 
-              className="w-full object-contain h-48" 
-            />
-            <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-900">Classic Black</h3>
-              <p className="text-sm text-gray-500">Timeless and reliable design</p>
-            </div>
-          </div>
-          
-          {/* Ocean Blue */}
-          <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <img 
-              src="/verification-results/ocean-blue.png" 
-              alt="Ocean Blue QR Code" 
-              className="w-full object-contain h-48" 
-            />
-            <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-900">Ocean Blue</h3>
-              <p className="text-sm text-gray-500">Professional and trustworthy</p>
-            </div>
-          </div>
-          
-          {/* Forest Green */}
-          <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <img 
-              src="/verification-results/forest-green.png" 
-              alt="Forest Green QR Code" 
-              className="w-full object-contain h-48" 
-            />
-            <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-900">Forest Green</h3>
-              <p className="text-sm text-gray-500">Eco-friendly and natural</p>
-            </div>
-          </div>
-          
-          {/* Sunset Red */}
-          <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <img 
-              src="/verification-results/sunset-red.png" 
-              alt="Sunset Red QR Code" 
-              className="w-full object-contain h-48" 
-            />
-            <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-900">Sunset Red</h3>
-              <p className="text-sm text-gray-500">Bold and attention-grabbing</p>
-            </div>
-          </div>
-          
-          {/* Purple */}
-          <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <img 
-              src="/verification-results/dots-purple.png" 
-              alt="Purple Dots QR Code" 
-              className="w-full object-contain h-48" 
-            />
-            <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-900">Purple Dots</h3>
-              <p className="text-sm text-gray-500">Creative and distinctive</p>
-            </div>
-          </div>
-          
-          {/* Amber */}
-          <div className="bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-            <img 
-              src="/verification-results/amber-gold.png" 
-              alt="Amber Gold QR Code" 
-              className="w-full object-contain h-48" 
-            />
-            <div className="mt-4">
-              <h3 className="text-lg font-medium text-gray-900">Amber Gold</h3>
-              <p className="text-sm text-gray-500">Warm and premium feel</p>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* Analytics Preview Section */}
-      <div className="max-w-7xl mx-auto px-4 py-12 sm:px-6 lg:px-8">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-            Powerful Analytics
-          </h2>
-          <p className="mt-3 text-lg text-gray-500">
-            Gain insights with our detailed scan analytics
-          </p>
-        </div>
-        
-        <div className="bg-white p-6 rounded-lg shadow-lg relative">
-          <AnalyticsDashboard />
-        </div>
-      </div>
       
     </div>
   );

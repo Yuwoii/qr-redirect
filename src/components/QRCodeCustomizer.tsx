@@ -512,11 +512,14 @@ export default function QRCodeCustomizer({
           {error ? (
             <div className="text-red-500">Error: {error}</div>
           ) : qrCodeDataUrl ? (
-            <img
-              src={qrCodeDataUrl}
-              alt="QR Code Preview"
-              className="max-w-full border rounded-md"
-            />
+            <div className="bg-white p-4 border rounded-md flex justify-center items-center" style={{ width: 320, height: 320 }}>
+              <img
+                src={qrCodeDataUrl}
+                alt="QR Code Preview"
+                className="max-w-full max-h-full"
+                style={{ width: 300, height: 300, objectFit: 'contain' }}
+              />
+            </div>
           ) : (
             <div className="flex items-center justify-center w-64 h-64 bg-gray-100 rounded-md">
               Loading...
@@ -773,37 +776,42 @@ export default function QRCodeCustomizer({
               <CardHeader>
                 <CardTitle>Logo Settings</CardTitle>
                 <CardDescription>
-                  Add a logo to the center of your QR code
+                  Add a custom logo to your QR code
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="logo">Upload Logo</Label>
-                  <Input
-                    id="logo"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleLogoChange}
-                  />
+                  <Label htmlFor="logoUpload">Upload Logo</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="logoUpload"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleLogoChange}
+                      className="flex-1"
+                    />
+                    {logoPreviewUrl && (
+                      <Button variant="outline" onClick={handleRemoveLogo}>
+                        Remove
+                      </Button>
+                    )}
+                  </div>
+                  
                   {logoPreviewUrl && (
-                    <div className="mt-2">
-                      <div className="text-sm font-bold mb-1">Preview:</div>
-                      <div className="flex items-center space-x-2">
+                    <div className="mt-4 flex justify-center">
+                      <div className="border rounded p-2 bg-white">
                         <img
                           src={logoPreviewUrl}
                           alt="Logo Preview"
-                          className="w-16 h-16 object-contain border rounded-md"
+                          className="max-w-full max-h-20"
                         />
-                        <Button variant="destructive" size="sm" onClick={handleRemoveLogo}>
-                          Remove
-                        </Button>
                       </div>
                     </div>
                   )}
                 </div>
                 
-                {options.logo && (
-                  <>
+                {logoFile && (
+                  <div className="space-y-4">
                     <div className="space-y-2">
                       <Label htmlFor="logoOpacity">Logo Opacity</Label>
                       <div className="flex items-center space-x-2">
@@ -812,13 +820,13 @@ export default function QRCodeCustomizer({
                           min={10}
                           max={100}
                           step={5}
-                          value={[(options.logo.opacity || 1) * 100]}
+                          value={[(options.logo?.opacity || 1) * 100]}
                           onValueChange={(value) => 
                             handleNestedOptionChange('logo', 'opacity', value[0] / 100)
                           }
                         />
                         <span className="w-16 text-center">
-                          {(options.logo.opacity || 1) * 100}%
+                          {Math.round((options.logo?.opacity || 1) * 100)}%
                         </span>
                       </div>
                     </div>
@@ -827,7 +835,7 @@ export default function QRCodeCustomizer({
                       <div className="flex items-center space-x-2">
                         <Switch
                           id="logoBorder"
-                          checked={options.logo.border !== false}
+                          checked={options.logo?.border !== false}
                           onCheckedChange={(checked) => 
                             handleNestedOptionChange('logo', 'border', checked)
                           }
@@ -835,67 +843,7 @@ export default function QRCodeCustomizer({
                         <Label htmlFor="logoBorder">Add Border</Label>
                       </div>
                     </div>
-                    
-                    {options.logo.border && (
-                      <>
-                        <div className="space-y-2">
-                          <Label htmlFor="logoBorderWidth">Border Width</Label>
-                          <div className="flex items-center space-x-2">
-                            <Slider
-                              id="logoBorderWidth"
-                              min={1}
-                              max={10}
-                              step={1}
-                              value={[options.logo.borderWidth || 5]}
-                              onValueChange={(value) => 
-                                handleNestedOptionChange('logo', 'borderWidth', value[0])
-                              }
-                            />
-                            <span className="w-16 text-center">
-                              {options.logo.borderWidth || 5}px
-                            </span>
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="logoBorderColor">Border Color</Label>
-                          <div className="flex items-center space-x-2">
-                            <div
-                              className="w-10 h-10 rounded-md border cursor-pointer"
-                              style={{ backgroundColor: options.logo.borderColor || '#FFFFFF' }}
-                              onClick={() => 
-                                setIsColorPickerOpen((prev) => ({ ...prev, border: !prev.border }))
-                              }
-                            />
-                            <Input
-                              id="logoBorderColor"
-                              value={options.logo.borderColor || '#FFFFFF'}
-                              onChange={(e) => 
-                                handleNestedOptionChange('logo', 'borderColor', e.target.value)
-                              }
-                              className="flex-1"
-                            />
-                          </div>
-                          {isColorPickerOpen.border && (
-                            <div className="mt-2 absolute z-10">
-                              <div 
-                                className="fixed inset-0" 
-                                onClick={() => 
-                                  setIsColorPickerOpen((prev) => ({ ...prev, border: false }))
-                                }
-                              />
-                              <SketchPicker
-                                color={options.logo.borderColor || '#FFFFFF'}
-                                onChange={(color) => 
-                                  handleNestedOptionChange('logo', 'borderColor', color.hex)
-                                }
-                              />
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </>
+                  </div>
                 )}
               </CardContent>
             </Card>
