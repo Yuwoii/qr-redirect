@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { generateQRCodeDataURL, QRCodeCustomOptions } from '@/lib/qrcode';
 import Image from 'next/image';
 
@@ -12,6 +12,9 @@ interface QRCodeDisplayProps {
   onGenerated?: (dataUrl: string) => void;
 }
 
+// Create a cache to avoid regenerating the same QR code
+const qrCodeCache = new Map<string, string>();
+
 export default function QRCodeDisplay({ 
   url, 
   size = 250, 
@@ -22,10 +25,26 @@ export default function QRCodeDisplay({
   const [qrCode, setQrCode] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
+  // Create a dependency key to track when url/options truly change
+  const dependencyKey = useMemo(() => {
+    return JSON.stringify({ url, size, options });
+  }, [url, size, options]);
 
   useEffect(() => {
     const generateQR = async () => {
       try {
+        // Check if we already have this QR code in cache
+        if (qrCodeCache.has(dependencyKey)) {
+          const cachedUrl = qrCodeCache.get(dependencyKey);
+          setQrCode(cachedUrl!);
+          if (onGenerated) {
+            onGenerated(cachedUrl!);
+          }
+          setIsLoading(false);
+          return;
+        }
+        
         setIsLoading(true);
         setError(null);
         
@@ -36,6 +55,10 @@ export default function QRCodeDisplay({
         };
         
         const dataUrl = await generateQRCodeDataURL(url, mergedOptions);
+        
+        // Store in cache
+        qrCodeCache.set(dependencyKey, dataUrl);
+        
         setQrCode(dataUrl);
         
         // Call onGenerated callback if provided
@@ -51,7 +74,7 @@ export default function QRCodeDisplay({
     };
 
     generateQR();
-  }, [url, size, options, onGenerated]);
+  }, [dependencyKey, onGenerated]);
 
   if (isLoading) {
     return (

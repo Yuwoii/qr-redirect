@@ -57,7 +57,7 @@ export default async function RootLayout({
                 <Link href="/" className="text-xl font-bold text-indigo-700">QR Redirect</Link>
                 <nav>
                   <ul className="flex space-x-6">
-                    <li><Link href="/qr-demo" className="text-gray-700 hover:text-indigo-700 font-medium">QR Demo</Link></li>
+                    <li><Link href="/qr-customize" className="text-gray-700 hover:text-indigo-700 font-medium">QR Customize</Link></li>
                     {session ? (
                       <>
                         <li><Link href="/dashboard" className="text-gray-700 hover:text-indigo-700 font-medium">Dashboard</Link></li>
