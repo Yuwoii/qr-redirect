@@ -1,17 +1,21 @@
-// Production Prisma schema file for PostgreSQL
-// This file is used when deploying to production environments with PostgreSQL
+// Vercel-specific Prisma schema
+// This schema is optimized for Vercel serverless deployments with Data Proxy or direct connections
 
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["metrics"]
 }
 
-// Production database configuration (PostgreSQL)
-// This will use either POSTGRES_PRISMA_URL or DATABASE_URL
+// Vercel database configuration with fallbacks
+// This supports both Vercel Data Proxy and direct connections
 datasource db {
-  provider = "postgresql"
-  url      = env("POSTGRES_PRISMA_URL") // Tries this first
-  directUrl = env("POSTGRES_URL_NON_POOLING") // Fallback for direct connections
+  provider  = "postgresql"
+  // Tries Vercel Postgres connection string first, falls back to DATABASE_URL
+  url       = env("POSTGRES_PRISMA_URL")
+  // For direct connections when Data Proxy is unavailable (like in Edge functions)
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+  // For Vercel projects with the legacy connection string pattern
+  // relationMode = "prisma" // Uncomment if needed
 }
 
 model User {

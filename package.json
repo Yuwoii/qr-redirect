@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && next build",
+    "build": "node scripts/db-migrate.js && prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "postinstall": "prisma generate",
@@ -12,6 +12,8 @@
     "db:migrate": "node scripts/db-migrate.js",
     "db:migrate:dev": "node scripts/db-migrate.js --env=dev",
     "db:migrate:prod": "node scripts/db-migrate.js --env=prod",
+    "db:check-vercel": "node scripts/vercel-check.js",
+    "vercel-build": "chmod +x scripts/*.js && npm run db:check-vercel && npm run build",
     "prisma:seed": "tsx prisma/seed.ts"
   },
   "prisma": {

@@ -22,6 +22,7 @@ interface PrismaError extends Error {
 interface DatabaseConfig {
   url: string;
   provider: 'sqlite' | 'postgresql' | 'mysql' | 'sqlserver';
+  directUrl?: string;
   poolConfig?: {
     min: number;
     max: number;
@@ -74,10 +75,27 @@ function getDatabaseConfig(): DatabaseConfig {
     provider: 'sqlite'
   };
   
-  // Supabase PostgreSQL configuration for production
+  // Vercel or other PostgreSQL configuration for production
   if (isProduction) {
-    const postgresUrl = process.env.POSTGRES_PRISMA_URL || 
-                        process.env.DATABASE_URL;
+    // Check for Vercel-specific environment variables
+    if (isVercel) {
+      logger.info('Detected Vercel environment, using Vercel Postgres configuration', 'getDatabaseConfig');
+      const vercelPostgresUrl = process.env.POSTGRES_PRISMA_URL;
+      const nonPoolingUrl = process.env.POSTGRES_URL_NON_POOLING;
+      
+      if (vercelPostgresUrl) {
+        return {
+          url: vercelPostgresUrl,
+          directUrl: nonPoolingUrl, // For direct connections in Edge functions
+          provider: 'postgresql'
+        };
+      } else {
+        logger.warn('No Vercel Postgres URL found, checking for standard DATABASE_URL', 'getDatabaseConfig');
+      }
+    }
+    
+    // Standard PostgreSQL setup (for both Vercel fallback and other environments)
+    const postgresUrl = process.env.DATABASE_URL || process.env.POSTGRES_PRISMA_URL;
     
     // For non-pooled connections (useful for serverless/edge functions)
     const nonPoolingUrl = process.env.POSTGRES_URL_NON_POOLING || postgresUrl;
@@ -87,7 +105,8 @@ function getDatabaseConfig(): DatabaseConfig {
       logger.info('Using PostgreSQL database connection for production', 'getDatabaseConfig');
       
       // Ensure URL is defined before returning
-      const finalUrl = isVercel && nonPoolingUrl ? nonPoolingUrl : postgresUrl;
+      const finalUrl = postgresUrl;
+      const finalDirectUrl = nonPoolingUrl;
       
       if (!finalUrl) {
         logger.warn('No valid PostgreSQL URL found, falling back to SQLite', 'getDatabaseConfig');
@@ -96,6 +115,7 @@ function getDatabaseConfig(): DatabaseConfig {
       
       return {
         url: finalUrl,
+        directUrl: finalDirectUrl !== finalUrl ? finalDirectUrl : undefined,
         provider: 'postgresql',
         // Add connection pooling configuration for production
         poolConfig: isVercel ? undefined : {
@@ -122,6 +142,9 @@ export function createPrismaClient(): PrismaClient {
   const dbConfig = getDatabaseConfig();
   
   logger.debug(`Using database URL: ${dbConfig.url}`, 'createPrismaClient');
+  if (dbConfig.directUrl) {
+    logger.debug(`Using direct URL for serverless/edge functions`, 'createPrismaClient');
+  }
   
   const prismaOptions: any = {
     log: process.env.NODE_ENV === 'development' 
@@ -134,6 +157,11 @@ export function createPrismaClient(): PrismaClient {
     },
     errorFormat: 'pretty'
   };
+  
+  // Add direct URL if available
+  if (dbConfig.directUrl) {
+    prismaOptions.datasources.db.directUrl = dbConfig.directUrl;
+  }
   
   // Add connection pool options if available
   if (dbConfig.poolConfig) {

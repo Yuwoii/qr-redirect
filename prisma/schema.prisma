@@ -55,4 +55,4 @@ model Redirect {
   @@index([qrCodeId]) // Add index for QR code lookups
   @@index([isActive]) // Add index for active redirects
   @@index([createdAt]) // Add index for sorting
-}
+} 
