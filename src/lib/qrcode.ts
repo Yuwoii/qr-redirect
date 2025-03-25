@@ -49,7 +49,6 @@ export interface QRCodeCustomOptions {
     width?: number;
     height?: number;
     opacity?: number;
-    borderRadius?: number;
     border?: boolean;
     borderWidth?: number;
     borderColor?: string;
@@ -164,7 +163,7 @@ export async function generateQRCodeSVG(
     
     // Basic options for QRCode library
     const qrCodeOptions: QRCode.QRCodeToStringOptions = {
-      type: 'svg',
+    type: 'svg',
       margin: options.margin,
       width: options.width,
       errorCorrectionLevel: options.errorCorrectionLevel,
@@ -284,6 +283,9 @@ export async function drawCustomQRCode(
   ctx.fillStyle = lightColor;
   ctx.fillRect(0, 0, (options.width || 300), (options.width || 300));
   
+  // Save the context state to ensure proper styling
+  ctx.save();
+  
   // Now we'll draw each module in the dark color
   // Draw each module (dot) of the QR code
   for (let row = 0; row < moduleCount; row++) {
@@ -310,10 +312,10 @@ export async function drawCustomQRCode(
           (row >= moduleCount - 5 && row < moduleCount - 2 && col >= 2 && col < 5); // Bottom-left corner dot
         
         if (isCorner && options.style?.cornerShape === 'rounded') {
-          // Draw rounded corner
+          // Draw rounded corner with explicit color
           drawRoundedSquare(ctx, x, y, moduleSize, moduleSize, moduleSize / 3, darkColor);
         } else if (isCornerDot && options.style?.cornerDotStyle === 'dot') {
-          // Draw corner dot as circle
+          // Draw corner dot as circle with explicit color
           drawCircle(ctx, x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2, darkColor);
         } else {
           // Draw regular module based on selected style
@@ -335,6 +337,9 @@ export async function drawCustomQRCode(
       }
     }
   }
+  
+  // Restore the context state
+  ctx.restore();
 }
 
 /**
@@ -353,6 +358,7 @@ export async function addLogoToQRCode(
   
   try {
     const canvasSize = options.width || 300;
+    // Use the calculated dimensions from options
     const logoWidth = options.logo?.width || canvasSize * 0.2;
     const logoHeight = options.logo?.height || logoWidth;
     
@@ -379,21 +385,7 @@ export async function addLogoToQRCode(
     // Save the current state
     ctx.save();
     
-    // Add border radius if specified
-    if (options.logo?.borderRadius) {
-      ctx.beginPath();
-      ctx.moveTo(x + options.logo.borderRadius, y);
-      ctx.lineTo(x + logoWidth - options.logo.borderRadius, y);
-      ctx.quadraticCurveTo(x + logoWidth, y, x + logoWidth, y + options.logo.borderRadius);
-      ctx.lineTo(x + logoWidth, y + logoHeight - options.logo.borderRadius);
-      ctx.quadraticCurveTo(x + logoWidth, y + logoHeight, x + logoWidth - options.logo.borderRadius, y + logoHeight);
-      ctx.lineTo(x + options.logo.borderRadius, y + logoHeight);
-      ctx.quadraticCurveTo(x, y + logoHeight, x, y + logoHeight - options.logo.borderRadius);
-      ctx.lineTo(x, y + options.logo.borderRadius);
-      ctx.quadraticCurveTo(x, y, x + options.logo.borderRadius, y);
-      ctx.closePath();
-      ctx.clip();
-    }
+    // No border radius handling as it's been removed
     
     // Add white background for logo
     ctx.fillStyle = '#ffffff';
@@ -449,7 +441,7 @@ function drawRoundedSquare(
   radius: number,
   color: string
 ): void {
-  // Save current context state
+  // Save the current context state
   ctx.save();
   
   // Explicitly set the fill color
@@ -471,7 +463,7 @@ function drawRoundedSquare(
   // Fill the path with the specified color
   ctx.fill();
   
-  // Restore context state
+  // Restore the context state
   ctx.restore();
 }
 
@@ -480,26 +472,26 @@ function drawRoundedSquare(
  */
 function drawCircle(
   ctx: CanvasRenderingContext2D, 
-  x: number, 
-  y: number, 
+  centerX: number, 
+  centerY: number, 
   radius: number,
   color: string
 ): void {
-  // Save current context state
+  // Save the current context state
   ctx.save();
   
   // Explicitly set the fill color
   ctx.fillStyle = color;
   
-  // Draw the circle path
+  // Draw the circle
   ctx.beginPath();
-  ctx.arc(x, y, radius, 0, 2 * Math.PI);
+  ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
   ctx.closePath();
   
-  // Fill the path with the specified color
+  // Fill the circle with the specified color
   ctx.fill();
   
-  // Restore context state
+  // Restore the context state
   ctx.restore();
 }
 
@@ -521,10 +513,9 @@ function mergeOptions(customOptions: Partial<QRCodeCustomOptions> = {}): QRCodeC
       ...customOptions.style
     },
     logo: customOptions.logo ? {
-      width: customOptions.logo.width || (customOptions.width || 300) * 0.2,
-      height: customOptions.logo.height,
+      width: (customOptions.width || 300) * 0.2,
+      height: (customOptions.width || 300) * 0.2,
       opacity: customOptions.logo.opacity !== undefined ? customOptions.logo.opacity : 1,
-      borderRadius: customOptions.logo.borderRadius || 0,
       border: customOptions.logo.border !== undefined ? customOptions.logo.border : true,
       borderWidth: customOptions.logo.borderWidth || 5,
       borderColor: customOptions.logo.borderColor || '#ffffff',

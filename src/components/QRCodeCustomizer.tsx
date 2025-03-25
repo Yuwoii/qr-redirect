@@ -805,35 +805,6 @@ export default function QRCodeCustomizer({
                 {options.logo && (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="logoSize">Logo Size</Label>
-                      <div className="flex items-center space-x-2">
-                        <Slider
-                          id="logoSize"
-                          min={5}
-                          max={30}
-                          step={1}
-                          value={[
-                            (options.logo.width || (options.width || 300) * 0.2) / 
-                            (options.width || 300) * 100
-                          ]}
-                          onValueChange={(value) => 
-                            handleNestedOptionChange(
-                              'logo', 
-                              'width', 
-                              (options.width || 300) * (value[0] / 100)
-                            )
-                          }
-                        />
-                        <span className="w-16 text-center">
-                          {Math.round(
-                            (options.logo.width || (options.width || 300) * 0.2) / 
-                            (options.width || 300) * 100
-                          )}%
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
                       <Label htmlFor="logoOpacity">Logo Opacity</Label>
                       <div className="flex items-center space-x-2">
                         <Slider
@@ -924,25 +895,6 @@ export default function QRCodeCustomizer({
                         </div>
                       </>
                     )}
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="logoBorderRadius">Border Radius</Label>
-                      <div className="flex items-center space-x-2">
-                        <Slider
-                          id="logoBorderRadius"
-                          min={0}
-                          max={20}
-                          step={1}
-                          value={[options.logo.borderRadius || 0]}
-                          onValueChange={(value) => 
-                            handleNestedOptionChange('logo', 'borderRadius', value[0])
-                          }
-                        />
-                        <span className="w-16 text-center">
-                          {options.logo.borderRadius || 0}px
-                        </span>
-                      </div>
-                    </div>
                   </>
                 )}
               </CardContent>
