@@ -1,0 +1,104 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="200" height="200" rx="10" fill="#F5F3FF" />
+  
+  <!-- QR Code (Dots style) with purple color -->
+  <!-- Position Patterns (Square corners, but the inner elements are circles) -->
+  <rect x="20" y="20" width="32" height="32" fill="#7E22CE" />
+  <rect x="24" y="24" width="24" height="24" fill="#F5F3FF" />
+  <rect x="28" y="28" width="16" height="16" fill="#7E22CE" />
+  
+  <rect x="148" y="20" width="32" height="32" fill="#7E22CE" />
+  <rect x="152" y="24" width="24" height="24" fill="#F5F3FF" />
+  <rect x="156" y="28" width="16" height="16" fill="#7E22CE" />
+  
+  <rect x="20" y="148" width="32" height="32" fill="#7E22CE" />
+  <rect x="24" y="152" width="24" height="24" fill="#F5F3FF" />
+  <rect x="28" y="156" width="16" height="16" fill="#7E22CE" />
+  
+  <!-- Timing Pattern (Dots) -->
+  <circle cx="32" cy="64" r="4" fill="#7E22CE" />
+  <circle cx="48" cy="64" r="4" fill="#7E22CE" />
+  <circle cx="64" cy="64" r="4" fill="#7E22CE" />
+  <circle cx="80" cy="64" r="4" fill="#7E22CE" />
+  <circle cx="96" cy="64" r="4" fill="#7E22CE" />
+  <circle cx="112" cy="64" r="4" fill="#7E22CE" />
+  <circle cx="128" cy="64" r="4" fill="#7E22CE" />
+  <circle cx="152" cy="64" r="4" fill="#7E22CE" />
+  <circle cx="168" cy="64" r="4" fill="#7E22CE" />
+  
+  <circle cx="64" cy="32" r="4" fill="#7E22CE" />
+  <circle cx="64" cy="48" r="4" fill="#7E22CE" />
+  <circle cx="64" cy="80" r="4" fill="#7E22CE" />
+  <circle cx="64" cy="96" r="4" fill="#7E22CE" />
+  <circle cx="64" cy="112" r="4" fill="#7E22CE" />
+  <circle cx="64" cy="128" r="4" fill="#7E22CE" />
+  <circle cx="64" cy="152" r="4" fill="#7E22CE" />
+  <circle cx="64" cy="168" r="4" fill="#7E22CE" />
+  
+  <!-- Data Modules (Dots) -->
+  <circle cx="80" cy="32" r="4" fill="#7E22CE" />
+  <circle cx="96" cy="32" r="4" fill="#7E22CE" />
+  <circle cx="112" cy="32" r="4" fill="#7E22CE" />
+  <circle cx="128" cy="32" r="4" fill="#7E22CE" />
+  
+  <circle cx="32" cy="80" r="4" fill="#7E22CE" />
+  <circle cx="48" cy="80" r="4" fill="#7E22CE" />
+  <circle cx="80" cy="80" r="4" fill="#7E22CE" />
+  <circle cx="96" cy="80" r="4" fill="#7E22CE" />
+  <circle cx="152" cy="80" r="4" fill="#7E22CE" />
+  <circle cx="168" cy="80" r="4" fill="#7E22CE" />
+  
+  <circle cx="32" cy="96" r="4" fill="#7E22CE" />
+  <circle cx="48" cy="96" r="4" fill="#7E22CE" />
+  <circle cx="80" cy="96" r="4" fill="#7E22CE" />
+  <circle cx="152" cy="96" r="4" fill="#7E22CE" />
+  <circle cx="168" cy="96" r="4" fill="#7E22CE" />
+  
+  <circle cx="32" cy="112" r="4" fill="#7E22CE" />
+  <circle cx="48" cy="112" r="4" fill="#7E22CE" />
+  <circle cx="152" cy="112" r="4" fill="#7E22CE" />
+  <circle cx="168" cy="112" r="4" fill="#7E22CE" />
+  
+  <circle cx="32" cy="128" r="4" fill="#7E22CE" />
+  <circle cx="48" cy="128" r="4" fill="#7E22CE" />
+  <circle cx="80" cy="128" r="4" fill="#7E22CE" />
+  <circle cx="96" cy="128" r="4" fill="#7E22CE" />
+  <circle cx="112" cy="128" r="4" fill="#7E22CE" />
+  <circle cx="128" cy="128" r="4" fill="#7E22CE" />
+  <circle cx="152" cy="128" r="4" fill="#7E22CE" />
+  <circle cx="168" cy="128" r="4" fill="#7E22CE" />
+  
+  <circle cx="80" cy="152" r="4" fill="#7E22CE" />
+  <circle cx="96" cy="152" r="4" fill="#7E22CE" />
+  <circle cx="112" cy="152" r="4" fill="#7E22CE" />
+  <circle cx="128" cy="152" r="4" fill="#7E22CE" />
+  <circle cx="152" cy="152" r="4" fill="#7E22CE" />
+  <circle cx="168" cy="152" r="4" fill="#7E22CE" />
+  
+  <circle cx="80" cy="168" r="4" fill="#7E22CE" />
+  <circle cx="96" cy="168" r="4" fill="#7E22CE" />
+  <circle cx="112" cy="168" r="4" fill="#7E22CE" />
+  <circle cx="128" cy="168" r="4" fill="#7E22CE" />
+  <circle cx="152" cy="168" r="4" fill="#7E22CE" />
+  <circle cx="168" cy="168" r="4" fill="#7E22CE" />
+  
+  <!-- Center Logo -->
+  <circle cx="100" cy="100" r="24" fill="white" stroke="#7E22CE" stroke-width="2"/>
+  
+  <!-- Simplified QR Redirect Logo in the center -->
+  <g transform="translate(83, 83) scale(0.35)">
+    <!-- QR code elements -->
+    <rect x="10" y="10" width="30" height="30" rx="5" fill="#7E22CE" />
+    <rect x="60" y="10" width="30" height="30" rx="5" fill="#7E22CE" />
+    <rect x="10" y="60" width="30" height="30" rx="5" fill="#7E22CE" />
+    
+    <!-- Inner square for position elements -->
+    <rect x="18" y="18" width="14" height="14" rx="2" fill="white" />
+    <rect x="68" y="18" width="14" height="14" rx="2" fill="white" />
+    <rect x="18" y="68" width="14" height="14" rx="2" fill="white" />
+    
+    <!-- Arrow -->
+    <path d="M90 50L110 40V60L90 50Z" fill="#7E22CE" />
+  </g>
+</svg> 

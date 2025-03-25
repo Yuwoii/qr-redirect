@@ -1,0 +1,28 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <rect width="32" height="32" rx="6" fill="url(#paint0_linear)" />
+  
+  <!-- QR code elements - Simplified for small size -->
+  <rect x="7" y="7" width="6" height="6" rx="1" fill="white" />
+  <rect x="19" y="7" width="6" height="6" rx="1" fill="white" />
+  <rect x="7" y="19" width="6" height="6" rx="1" fill="white" />
+  
+  <!-- QR code data dots -->
+  <rect x="15" y="9" width="2" height="2" rx="0.5" fill="white" />
+  <rect x="9" y="15" width="2" height="2" rx="0.5" fill="white" />
+  <rect x="15" y="15" width="2" height="2" rx="0.5" fill="white" />
+  <rect x="21" y="15" width="2" height="2" rx="0.5" fill="white" />
+  <rect x="15" y="21" width="2" height="2" rx="0.5" fill="white" />
+  <rect x="21" y="21" width="2" height="2" rx="0.5" fill="white" />
+  
+  <!-- Tiny redirect arrow -->
+  <path d="M24 16L26 14V18L24 16Z" fill="white" />
+  
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="paint0_linear" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5046E4" />
+      <stop offset="1" stop-color="#7E22CE" />
+    </linearGradient>
+  </defs>
+</svg> 

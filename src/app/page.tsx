@@ -91,74 +91,74 @@ export default async function Home() {
                   <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
-                        src="/style-previews/classic.svg" 
-                        alt="Classic QR Code Style" 
+                        src="/style-previews/colored/classic-blue.svg" 
+                        alt="Classic QR Code Style (Blue)" 
                         width={100} 
                         height={100} 
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Classic</p>
+                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Classic (Blue)</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
-                        src="/style-previews/rounded.svg" 
-                        alt="Rounded QR Code Style" 
+                        src="/style-previews/colored/rounded-green.svg" 
+                        alt="Rounded QR Code Style (Green)" 
                         width={100} 
                         height={100} 
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Rounded</p>
+                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Rounded (Green)</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
-                        src="/style-previews/dots.svg" 
-                        alt="Dots QR Code Style" 
+                        src="/style-previews/colored/dots-purple.svg" 
+                        alt="Dots QR Code Style (Purple)" 
                         width={100} 
                         height={100} 
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Dots</p>
+                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Dots (Purple)</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
-                        src="/style-previews/corner-dots.svg" 
-                        alt="Corner Dots QR Code Style" 
+                        src="/style-previews/colored/corner-dots-red.svg" 
+                        alt="Corner Dots QR Code Style (Red)" 
                         width={100} 
                         height={100} 
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Corner Dots</p>
+                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Corner Dots (Red)</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
-                        src="/style-previews/rounded-dots.svg" 
-                        alt="Rounded Dots QR Code Style" 
+                        src="/style-previews/colored/rounded-dots-amber.svg" 
+                        alt="Rounded Dots QR Code Style (Amber)" 
                         width={100} 
                         height={100} 
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Rounded Dots</p>
+                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Rounded Dots (Amber)</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
-                        src="/style-previews/hybrid.svg" 
-                        alt="Hybrid QR Code Style" 
+                        src="/style-previews/colored/hybrid-indigo.svg" 
+                        alt="Hybrid QR Code Style (Indigo)" 
                         width={100} 
                         height={100} 
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Hybrid</p>
+                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Hybrid (Indigo)</p>
                   </div>
                 </div>
               </div>
@@ -473,17 +473,6 @@ export default async function Home() {
         </div>
       </section>
       
-      {/* Footer - Fixed the duplicate copyright issue */}
-      <footer className="w-full py-8 bg-gray-50 border-t border-gray-200">
-        <div className="container mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-gray-600 text-sm">&copy; {new Date().getFullYear()} QR Redirect. All rights reserved.</p>
-          <div className="flex space-x-6 mt-4 md:mt-0">
-            <a href="#" className="text-gray-600 hover:text-indigo-700 transition-colors text-sm">Privacy Policy</a>
-            <a href="#" className="text-gray-600 hover:text-indigo-700 transition-colors text-sm">Terms of Service</a>
-            <a href="#" className="text-gray-600 hover:text-indigo-700 transition-colors text-sm">Contact Us</a>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }

@@ -1,0 +1,39 @@
+<svg width="250" height="250" viewBox="0 0 250 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background gradient -->
+  <rect width="250" height="250" rx="40" fill="url(#paint0_linear)" />
+  
+  <!-- QR code frame -->
+  <rect x="55" y="55" width="140" height="140" rx="10" fill="white" />
+  
+  <!-- QR code elements - Modern stylized version -->
+  <!-- Position squares -->
+  <rect x="70" y="70" width="35" height="35" rx="8" fill="#5046E4" />
+  <rect x="145" y="70" width="35" height="35" rx="8" fill="#5046E4" />
+  <rect x="70" y="145" width="35" height="35" rx="8" fill="#5046E4" />
+  
+  <!-- Inner square for position elements -->
+  <rect x="80" y="80" width="15" height="15" rx="4" fill="white" />
+  <rect x="155" y="80" width="15" height="15" rx="4" fill="white" />
+  <rect x="80" y="155" width="15" height="15" rx="4" fill="white" />
+  
+  <!-- QR code data elements -->
+  <rect x="115" y="70" width="15" height="15" rx="4" fill="#5046E4" />
+  <rect x="70" y="115" width="15" height="15" rx="4" fill="#5046E4" />
+  <rect x="145" y="115" width="15" height="15" rx="4" fill="#5046E4" />
+  <rect x="115" y="145" width="15" height="15" rx="4" fill="#5046E4" />
+  <rect x="165" y="145" width="15" height="15" rx="4" fill="#5046E4" />
+  <rect x="145" y="165" width="15" height="15" rx="4" fill="#5046E4" />
+  <rect x="115" y="115" width="20" height="20" rx="5" fill="#7E22CE" />
+  
+  <!-- Redirect arrow -->
+  <path d="M180 125C180 117.268 186.268 111 194 111H220C227.732 111 234 117.268 234 125V125C234 132.732 227.732 139 220 139H194C186.268 139 180 132.732 180 125V125Z" fill="#F0F0F0" />
+  <path d="M196 125L212 115V135L196 125Z" fill="#5046E4" />
+  
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="paint0_linear" x1="0" y1="0" x2="250" y2="250" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#5046E4" />
+      <stop offset="1" stop-color="#7E22CE" />
+    </linearGradient>
+  </defs>
+</svg> 
