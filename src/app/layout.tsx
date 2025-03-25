@@ -77,8 +77,13 @@ export default async function RootLayout({
               {children}
             </main>
             <footer className="bg-white py-6 border-t border-gray-100">
-              <div className="container mx-auto px-4 text-center text-gray-600 text-sm">
-                &copy; {new Date().getFullYear()} QR Redirect. All rights reserved.
+              <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
+                <p className="text-gray-600 text-sm mb-4 md:mb-0">&copy; {new Date().getFullYear()} QR Redirect. All rights reserved.</p>
+                <div className="flex flex-wrap justify-center md:justify-end space-x-6">
+                  <Link href="/privacy-policy" className="text-gray-600 hover:text-indigo-700 transition-colors text-sm">Privacy Policy</Link>
+                  <Link href="/terms-of-service" className="text-gray-600 hover:text-indigo-700 transition-colors text-sm">Terms of Service</Link>
+                  <Link href="/contact-us" className="text-gray-600 hover:text-indigo-700 transition-colors text-sm">Contact Us</Link>
+                </div>
               </div>
             </footer>
           </div>

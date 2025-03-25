@@ -87,54 +87,78 @@ export default async function Home() {
                 </ul>
               </div>
               <div className="bg-gradient-to-br from-indigo-50 to-purple-50 p-10 flex items-center justify-center">
-                <div className="grid grid-cols-2 gap-6">
-                  <div className="bg-white p-4 rounded-lg shadow-md">
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
                         src="/style-previews/classic.svg" 
                         alt="Classic QR Code Style" 
-                        width={120} 
-                        height={120} 
+                        width={100} 
+                        height={100} 
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <p className="text-center text-sm font-medium text-gray-700 mt-2">Classic Style</p>
+                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Classic</p>
                   </div>
-                  <div className="bg-white p-4 rounded-lg shadow-md">
+                  <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
                         src="/style-previews/rounded.svg" 
                         alt="Rounded QR Code Style" 
-                        width={120} 
-                        height={120} 
+                        width={100} 
+                        height={100} 
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <p className="text-center text-sm font-medium text-gray-700 mt-2">Rounded Style</p>
+                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Rounded</p>
                   </div>
-                  <div className="bg-white p-4 rounded-lg shadow-md">
+                  <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
                         src="/style-previews/dots.svg" 
                         alt="Dots QR Code Style" 
-                        width={120} 
-                        height={120} 
+                        width={100} 
+                        height={100} 
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <p className="text-center text-sm font-medium text-gray-700 mt-2">Dots Style</p>
+                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Dots</p>
                   </div>
-                  <div className="bg-white p-4 rounded-lg shadow-md">
+                  <div className="bg-white p-3 rounded-lg shadow-md">
+                    <div className="aspect-square w-full rounded flex items-center justify-center">
+                      <Image 
+                        src="/style-previews/corner-dots.svg" 
+                        alt="Corner Dots QR Code Style" 
+                        width={100} 
+                        height={100} 
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Corner Dots</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg shadow-md">
+                    <div className="aspect-square w-full rounded flex items-center justify-center">
+                      <Image 
+                        src="/style-previews/rounded-dots.svg" 
+                        alt="Rounded Dots QR Code Style" 
+                        width={100} 
+                        height={100} 
+                        className="w-full h-full object-contain"
+                      />
+                    </div>
+                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Rounded Dots</p>
+                  </div>
+                  <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
                         src="/style-previews/hybrid.svg" 
                         alt="Hybrid QR Code Style" 
-                        width={120} 
-                        height={120} 
+                        width={100} 
+                        height={100} 
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <p className="text-center text-sm font-medium text-gray-700 mt-2">Hybrid Style</p>
+                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Hybrid</p>
                   </div>
                 </div>
               </div>
@@ -251,53 +275,127 @@ export default async function Home() {
             
             <div className="lg:w-1/2 bg-white rounded-xl shadow-xl overflow-hidden border border-gray-200">
               <div className="p-2 bg-gray-50 border-b border-gray-200">
-                <div className="flex space-x-1">
-                  <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-                  <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                  <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                <div className="flex justify-between items-center">
+                  <div className="flex space-x-1">
+                    <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                    <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
+                    <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                  </div>
+                  <div className="text-xs text-gray-500">QR Analytics Dashboard</div>
                 </div>
               </div>
-              <div className="p-6">
-                <div className="w-full h-64 bg-white rounded-lg flex flex-col">
-                  {/* Mock Analytics Chart */}
+              <div className="p-4 relative">
+                {/* Navigation Buttons */}
+                <button className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white rounded-r-lg shadow-md p-2 z-10 text-gray-500 hover:text-indigo-600 transition-colors" aria-label="Previous analytics view">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                </button>
+                
+                <button className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white rounded-l-lg shadow-md p-2 z-10 text-gray-500 hover:text-indigo-600 transition-colors" aria-label="Next analytics view">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path>
+                  </svg>
+                </button>
+                
+                <div className="pl-6 pr-6">
+                  {/* Dashboard Header */}
                   <div className="flex justify-between items-center mb-4">
-                    <h4 className="font-semibold text-gray-800">Scan Activity</h4>
-                    <div className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Last 30 days</div>
-                  </div>
-                  
-                  <div className="flex-1 relative">
-                    {/* Chart Background Grid */}
-                    <div className="absolute inset-0 grid grid-cols-7 grid-rows-4">
-                      {Array(28).fill(0).map((_, i) => (
-                        <div key={i} className="border-b border-r border-gray-100"></div>
-                      ))}
+                    <div>
+                      <h4 className="font-semibold text-gray-800">Analytics Overview</h4>
+                      <p className="text-xs text-gray-500">Real-time insights from your QR codes</p>
                     </div>
-                    
-                    {/* Chart Data */}
-                    <div className="absolute bottom-0 left-0 right-0 h-32 flex items-end">
-                      {[15, 22, 18, 26, 12, 28, 19, 25, 30, 22, 15, 20, 24, 19, 14].map((value, index) => (
-                        <div 
-                          key={index} 
-                          className="flex-1 mx-0.5 bg-gradient-to-t from-indigo-600 to-purple-500 rounded-t" 
-                          style={{ height: `${(value / 30) * 100}%` }}
-                        ></div>
-                      ))}
+                    <div className="flex space-x-2">
+                      <div className="text-xs bg-indigo-100 text-indigo-700 px-2 py-1 rounded-full">
+                        Last 30 days
+                      </div>
+                      <div className="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded-full">
+                        All Data
+                      </div>
                     </div>
                   </div>
                   
-                  {/* Mock Stats */}
-                  <div className="grid grid-cols-3 gap-4 mt-4 text-center">
+                  {/* Main Chart */}
+                  <div className="mb-6">
+                    <div className="flex justify-between text-xs text-gray-500 mb-1">
+                      <span>Scans</span>
+                      <span>May 2025</span>
+                    </div>
+                    <div className="h-32 bg-white rounded-lg flex-1 relative">
+                      {/* Chart Background Grid */}
+                      <div className="absolute inset-0 grid grid-cols-7 grid-rows-4">
+                        {Array(28).fill(0).map((_, i) => (
+                          <div key={i} className="border-b border-r border-gray-100"></div>
+                        ))}
+                      </div>
+                      
+                      {/* Chart Data */}
+                      <div className="absolute bottom-0 left-0 right-0 h-32 flex items-end">
+                        {[15, 22, 18, 26, 12, 28, 19, 25, 30, 22, 15, 20, 24, 19, 14, 22, 26, 32, 29, 24, 18, 24, 28, 30, 34, 28, 26, 29, 31].map((value, index) => (
+                          <div 
+                            key={index} 
+                            className="flex-1 mx-0.5 bg-gradient-to-t from-indigo-600 to-purple-500 rounded-t" 
+                            style={{ height: `${(value / 35) * 100}%` }}
+                          ></div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Stats Grid */}
+                  <div className="grid grid-cols-3 gap-4 mb-4">
                     <div className="bg-gray-50 p-2 rounded">
-                      <div className="text-lg font-bold text-indigo-700">247</div>
+                      <div className="text-lg font-bold text-indigo-700">3,247</div>
                       <div className="text-xs text-gray-500">Total Scans</div>
+                      <div className="text-xs text-green-600 mt-1">+12.5% ↑</div>
                     </div>
                     <div className="bg-gray-50 p-2 rounded">
-                      <div className="text-lg font-bold text-indigo-700">18</div>
+                      <div className="text-lg font-bold text-indigo-700">42</div>
                       <div className="text-xs text-gray-500">Countries</div>
+                      <div className="text-xs text-green-600 mt-1">+3 new ↑</div>
                     </div>
                     <div className="bg-gray-50 p-2 rounded">
-                      <div className="text-lg font-bold text-indigo-700">68%</div>
+                      <div className="text-lg font-bold text-indigo-700">72%</div>
                       <div className="text-xs text-gray-500">Mobile</div>
+                      <div className="text-xs text-gray-500 mt-1">28% Desktop</div>
+                    </div>
+                  </div>
+                  
+                  {/* Secondary Data */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gray-50 p-3 rounded">
+                      <h5 className="text-xs font-medium text-gray-700 mb-2">Top Locations</h5>
+                      <div className="space-y-1 text-xs">
+                        <div className="flex justify-between">
+                          <span>United States</span>
+                          <span className="font-medium">42%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>United Kingdom</span>
+                          <span className="font-medium">18%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Germany</span>
+                          <span className="font-medium">12%</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="bg-gray-50 p-3 rounded">
+                      <h5 className="text-xs font-medium text-gray-700 mb-2">Device Breakdown</h5>
+                      <div className="space-y-1 text-xs">
+                        <div className="flex justify-between">
+                          <span>iPhone</span>
+                          <span className="font-medium">38%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Android</span>
+                          <span className="font-medium">34%</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Windows</span>
+                          <span className="font-medium">22%</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
