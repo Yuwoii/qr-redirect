@@ -1,0 +1,58 @@
+// This is a simplified schema that only uses the DATABASE_URL environment variable
+// This is intended as a last resort if all other schema configurations fail
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["metrics"]
+}
+
+// Simplest possible database configuration with just DATABASE_URL
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  qrCodes       QRCode[]
+
+  @@index([email])
+}
+
+model QRCode {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  userId      String
+  data        String     @default("https://example.com")
+  imageUrl    String?
+  backgroundColor String  @default("#FFFFFF")
+  foregroundColor String  @default("#000000")
+  logoUrl     String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  redirects   Redirect[]
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Redirect {
+  id        String   @id @default(cuid())
+  qrCodeId  String
+  userAgent String?
+  ipAddress String?
+  referrer  String?
+  timestamp DateTime @default(now())
+  qrCode    QRCode   @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
+
+  @@index([qrCodeId])
+  @@index([timestamp])
+} 

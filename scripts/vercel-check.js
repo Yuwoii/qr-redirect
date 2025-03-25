@@ -7,6 +7,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
 // Check Vercel environment variables
 function checkVercelEnv() {
@@ -46,6 +47,18 @@ function checkVercelEnv() {
   return true;
 }
 
+// Validate a Prisma schema
+function validatePrismaSchema(schemaPath) {
+  try {
+    // Try to validate the schema using prisma validate
+    execSync(`npx prisma validate --schema=${schemaPath}`, { stdio: 'pipe' });
+    return true;
+  } catch (error) {
+    console.error(`Schema validation failed for ${schemaPath}: ${error.message}`);
+    return false;
+  }
+}
+
 // Check Prisma schema configuration
 function checkPrismaSchema() {
   console.log('Checking Prisma schema configuration...');
@@ -65,16 +78,56 @@ function checkPrismaSchema() {
     console.log('Fixing schema by copying Vercel-specific schema...');
     
     const vercelSchemaPath = path.join(__dirname, '../prisma/schema.vercel.prisma');
+    const vercelSafePath = path.join(__dirname, '../prisma/schema.vercel-safe.prisma');
     
     if (fs.existsSync(vercelSchemaPath)) {
+      // Try the main schema first
       fs.copyFileSync(vercelSchemaPath, schemaPath);
-      console.log('Schema fixed with Vercel-specific configuration');
+      
+      // Validate the main schema
+      if (validatePrismaSchema(schemaPath)) {
+        console.log('Schema fixed with Vercel-specific configuration');
+        return true;
+      }
+      
+      // If the main schema fails, try the safe fallback
+      if (fs.existsSync(vercelSafePath)) {
+        console.log('Main schema validation failed, trying fallback schema...');
+        fs.copyFileSync(vercelSafePath, schemaPath);
+        
+        if (validatePrismaSchema(schemaPath)) {
+          console.log('Schema fixed with Vercel-safe fallback configuration');
+          return true;
+        }
+      }
+      
+      // If both fail, try the PostgreSQL schema
+      const prodSchemaPath = path.join(__dirname, '../prisma/schema.postgresql.prisma');
+      if (fs.existsSync(prodSchemaPath)) {
+        console.log('Fallback schema validation failed, trying production schema...');
+        fs.copyFileSync(prodSchemaPath, schemaPath);
+        
+        if (validatePrismaSchema(schemaPath)) {
+          console.log('Schema fixed with production PostgreSQL configuration');
+          return true;
+        }
+      }
+      
+      console.error('ERROR: All schema options failed validation');
+      return false;
     } else {
       const prodSchemaPath = path.join(__dirname, '../prisma/schema.postgresql.prisma');
       
       if (fs.existsSync(prodSchemaPath)) {
         fs.copyFileSync(prodSchemaPath, schemaPath);
-        console.log('Schema fixed with production PostgreSQL configuration');
+        
+        if (validatePrismaSchema(schemaPath)) {
+          console.log('Schema fixed with production PostgreSQL configuration');
+          return true;
+        } else {
+          console.error('ERROR: Production schema validation failed');
+          return false;
+        }
       } else {
         console.error('ERROR: Could not find Vercel or PostgreSQL schema to fix the issue');
         return false;
@@ -82,12 +135,11 @@ function checkPrismaSchema() {
     }
   } else if (schema.includes('provider = "postgresql"')) {
     console.log('Prisma schema is correctly using PostgreSQL provider');
+    return validatePrismaSchema(schemaPath);
   } else {
     console.error('ERROR: Unknown provider in Prisma schema');
     return false;
   }
-  
-  return true;
 }
 
 // Main function
@@ -112,6 +164,7 @@ async function main() {
     console.log('All checks passed! Your Vercel configuration looks good');
   } else {
     console.error('Some checks failed. Please fix the issues above before deploying to Vercel');
+    process.exit(1);
   }
 }
 

@@ -1,0 +1,61 @@
+// This is a simplified, safer alternative to schema.vercel.prisma
+// It doesn't use PostgreSQL extensions which require a preview feature flag
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["metrics"]
+}
+
+// Try multiple possible environment variables to find a working connection
+datasource db {
+  provider = "postgresql"
+  // Try DATABASE_URL first, then fall back to POSTGRES_PRISMA_URL
+  url = env("DATABASE_URL")
+  // No directUrl to reduce complexity and potential for errors
+  relationMode = "foreignKeys"
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  qrCodes       QRCode[]
+
+  @@index([email]) // Add index for email lookups
+}
+
+model QRCode {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  userId      String
+  data        String     @default("https://example.com")
+  imageUrl    String?
+  backgroundColor String  @default("#FFFFFF")
+  foregroundColor String  @default("#000000")
+  logoUrl     String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  redirects   Redirect[]
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId]) // Add index for user lookups
+}
+
+model Redirect {
+  id        String   @id @default(cuid())
+  qrCodeId  String
+  userAgent String?
+  ipAddress String?
+  referrer  String?
+  timestamp DateTime @default(now())
+  qrCode    QRCode   @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
+
+  @@index([qrCodeId]) // Add index for QR code lookups
+  @@index([timestamp]) // Add index for sorting
+} 

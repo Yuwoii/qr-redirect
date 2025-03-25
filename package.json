@@ -13,7 +13,8 @@
     "db:migrate:dev": "node scripts/db-migrate.js --env=dev",
     "db:migrate:prod": "node scripts/db-migrate.js --env=prod",
     "db:check-vercel": "node scripts/vercel-check.js",
-    "vercel-build": "chmod +x scripts/*.js && npm run db:check-vercel && npm run build",
+    "vercel-build": "chmod +x scripts/*.js && npm run db:check-vercel && npm run db:migrate --env=vercel && next build || (echo 'Trying fallback build process...' && node scripts/db-migrate.js --env=vercel && prisma generate && next build)",
+    "db:validate": "node scripts/validate-schema.js",
     "prisma:seed": "tsx prisma/seed.ts"
   },
   "prisma": {
