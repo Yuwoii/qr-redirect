@@ -37,6 +37,7 @@ export enum PrismaErrorType {
   RATE_LIMIT = 'P1009',       // Database server refused the connection (rate limit)
   UNKNOWN = 'P1000',          // Unknown error
   QUERY_ENGINE_ERROR = 'P2025', // Record not found
+  PREPARED_STATEMENT_ERROR = '42P05', // PostgreSQL: prepared statement already exists
 }
 
 // Default retry options for database operations
@@ -58,8 +59,21 @@ const DEFAULT_RETRY_OPTIONS: RetryOptions = {
   }
 };
 
-// Our Prisma client singleton
-let prismaClient: PrismaClient | undefined;
+// Global PrismaClient for non-serverless environments
+let globalPrismaClient: PrismaClient | undefined;
+
+// Cache for PrismaClient instances in serverless environments
+// Using WeakMap to allow garbage collection of PrismaClient instances
+const clientCache = new Map<string, {
+  client: PrismaClient;
+  lastUsed: number;
+}>();
+
+// Maximum idle time for a client before it's removed from the cache (5 minutes)
+const MAX_CLIENT_IDLE_TIME = 5 * 60 * 1000;
+
+// Maximum number of clients to keep in the cache
+const MAX_CLIENT_CACHE_SIZE = 10;
 
 /**
  * Determines the appropriate database configuration based on environment
@@ -134,6 +148,51 @@ function getDatabaseConfig(): DatabaseConfig {
 }
 
 /**
+ * Cleans up idle PrismaClient instances from the cache
+ */
+function cleanupIdleClients(): void {
+  const now = Date.now();
+  let deleted = 0;
+  
+  for (const [key, { lastUsed }] of clientCache.entries()) {
+    if (now - lastUsed > MAX_CLIENT_IDLE_TIME) {
+      const cachedClient = clientCache.get(key);
+      if (cachedClient) {
+        // Disconnect the client before removing it
+        cachedClient.client.$disconnect().catch(error => {
+          logger.warn(`Error disconnecting idle client: ${error}`, 'cleanupIdleClients');
+        });
+        clientCache.delete(key);
+        deleted++;
+      }
+    }
+  }
+  
+  if (deleted > 0) {
+    logger.debug(`Cleaned up ${deleted} idle database clients`, 'cleanupIdleClients');
+  }
+  
+  // If the cache is still too large, remove the oldest clients
+  if (clientCache.size > MAX_CLIENT_CACHE_SIZE) {
+    const sortedEntries = Array.from(clientCache.entries())
+      .sort(([, a], [, b]) => a.lastUsed - b.lastUsed);
+    
+    const toRemove = sortedEntries.slice(0, clientCache.size - MAX_CLIENT_CACHE_SIZE);
+    for (const [key] of toRemove) {
+      const cachedClient = clientCache.get(key);
+      if (cachedClient) {
+        cachedClient.client.$disconnect().catch(error => {
+          logger.warn(`Error disconnecting excess client: ${error}`, 'cleanupIdleClients');
+        });
+        clientCache.delete(key);
+      }
+    }
+    
+    logger.debug(`Removed ${toRemove.length} excess database clients`, 'cleanupIdleClients');
+  }
+}
+
+/**
  * Creates a new PrismaClient instance with optimized connection parameters
  */
 export function createPrismaClient(): PrismaClient {
@@ -146,13 +205,40 @@ export function createPrismaClient(): PrismaClient {
     logger.debug(`Using direct URL for serverless/edge functions`, 'createPrismaClient');
   }
   
+  // Specifically for PostgreSQL in serverless environments, we add parameters to avoid prepared statement issues
+  let finalUrl = dbConfig.url;
+  
+  if (dbConfig.provider === 'postgresql' && (process.env.VERCEL === '1' || process.env.AWS_LAMBDA_FUNCTION_NAME)) {
+    // Add parameters to disable prepared statements if they're not already in the URL
+    if (!finalUrl.includes('pgbouncer=true')) {
+      finalUrl += (finalUrl.includes('?') ? '&' : '?') + 'pgbouncer=true';
+    }
+    
+    // Ensure schema caching is disabled to prevent prepared statement conflicts
+    if (!finalUrl.includes('schema_cache_mode=bypass')) {
+      finalUrl += '&schema_cache_mode=bypass';
+    }
+    
+    // Set statement timeout to prevent long-running queries
+    if (!finalUrl.includes('statement_timeout')) {
+      finalUrl += '&statement_timeout=60000';
+    }
+    
+    // Ensure we're using the simple protocol to avoid prepared statements
+    if (!finalUrl.includes('options=')) {
+      finalUrl += '&options=-c%20client_min_messages%3Dwarning%20-c%20statement_timeout%3D60s%20-c%20idle_in_transaction_session_timeout%3D60s';
+    }
+    
+    logger.debug(`Enhanced PostgreSQL URL for serverless environment`, 'createPrismaClient');
+  }
+  
   // Create Prisma options with proper flat structure for datasources
   const prismaOptions: any = {
     log: process.env.NODE_ENV === 'development' 
       ? ['error', 'warn'] 
       : ['error'],
     datasources: {
-      db: { url: dbConfig.url }
+      db: { url: finalUrl }
     },
     errorFormat: 'pretty'
   };
@@ -173,8 +259,20 @@ export function createPrismaClient(): PrismaClient {
       // Use a safe approach that's compatible with Prisma's validation
       // @ts-ignore - Accessing internal property for Edge compatibility
       if (client._engineConfig && client._engineConfig.datasources) {
+        // Add the same parameters to the direct URL
+        let enhancedDirectUrl = dbConfig.directUrl;
+        if (dbConfig.provider === 'postgresql') {
+          if (!enhancedDirectUrl.includes('pgbouncer=true')) {
+            enhancedDirectUrl += (enhancedDirectUrl.includes('?') ? '&' : '?') + 'pgbouncer=true';
+          }
+          
+          if (!enhancedDirectUrl.includes('schema_cache_mode=bypass')) {
+            enhancedDirectUrl += '&schema_cache_mode=bypass';
+          }
+        }
+        
         // @ts-ignore - Accessing internal property for Edge compatibility
-        client._engineConfig.datasources.db.directUrl = dbConfig.directUrl;
+        client._engineConfig.datasources.db.directUrl = enhancedDirectUrl;
       }
     } catch (error) {
       logger.warn(`Could not set direct URL: ${error}`, 'createPrismaClient');
@@ -234,28 +332,77 @@ export async function waitForDatabaseReady(maxAttempts = 5): Promise<void> {
 }
 
 /**
- * Get the global PrismaClient instance
+ * Get a PrismaClient instance - uses different strategies based on environment
  */
 export function getPrismaClient(): PrismaClient {
-  if (!prismaClient) {
-    logger.info('Initializing new PrismaClient instance', 'getPrismaClient');
-    prismaClient = createPrismaClient();
+  const isServerless = !!process.env.VERCEL || !!process.env.AWS_LAMBDA_FUNCTION_NAME;
+  
+  // For serverless environments, we use a client-per-request approach to avoid prepared statement conflicts
+  if (isServerless) {
+    // Create a unique key for this request based on environment and timestamp
+    const requestId = process.env.REQUEST_ID || process.env.VERCEL_ID || `req-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
     
-    // Note: process.on is not available in Edge runtime
-    // Cleanup will be handled separately for server components
+    // Occasionally clean up idle clients
+    if (Math.random() < 0.1) {
+      cleanupIdleClients();
+    }
+    
+    // Check if we have a cached client for this request
+    const cachedClient = clientCache.get(requestId);
+    if (cachedClient) {
+      // Update the last used timestamp
+      cachedClient.lastUsed = Date.now();
+      return cachedClient.client;
+    }
+    
+    // Create a new client for this request
+    logger.debug(`Creating new PrismaClient for request ${requestId}`, 'getPrismaClient');
+    const client = createPrismaClient();
+    
+    // Add it to the cache
+    clientCache.set(requestId, { client, lastUsed: Date.now() });
+    
+    return client;
   }
-  return prismaClient;
+  
+  // For non-serverless environments, we use a singleton client
+  if (!globalPrismaClient) {
+    logger.info('Initializing global PrismaClient instance', 'getPrismaClient');
+    globalPrismaClient = createPrismaClient();
+    
+    // Set up cleanup for non-Edge environments
+    if (typeof process !== 'undefined' && process.on && !process.env.EDGE_RUNTIME) {
+      process.on('beforeExit', async () => {
+        await disconnectPrisma();
+      });
+    }
+  }
+  
+  return globalPrismaClient;
 }
 
 /**
  * Disconnect the Prisma client (useful for serverless environments)
  */
 export async function disconnectPrisma(): Promise<void> {
-  if (prismaClient) {
-    logger.info('Disconnecting Prisma client', 'disconnectPrisma');
-    await prismaClient.$disconnect();
-    prismaClient = undefined;
+  // Disconnect the global client if it exists
+  if (globalPrismaClient) {
+    logger.info('Disconnecting global Prisma client', 'disconnectPrisma');
+    await globalPrismaClient.$disconnect();
+    globalPrismaClient = undefined;
   }
+  
+  // Disconnect and clear all cached clients
+  for (const [key, { client }] of clientCache.entries()) {
+    try {
+      await client.$disconnect();
+    } catch (error) {
+      logger.warn(`Error disconnecting cached client: ${error}`, 'disconnectPrisma');
+    }
+  }
+  
+  clientCache.clear();
+  logger.info('All Prisma clients disconnected', 'disconnectPrisma');
 }
 
 /**
@@ -290,7 +437,7 @@ initializeDatabase().catch(error => {
   logger.error(`Failed to initialize database: ${error}`, 'moduleInit');
 });
 
-// Get singleton client
+// Get singleton client - now using the environment-aware approach
 const prisma = getPrismaClient();
 
 // Export default client for convenience

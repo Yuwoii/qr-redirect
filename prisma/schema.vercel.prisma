@@ -14,8 +14,9 @@ datasource db {
   url       = env("POSTGRES_PRISMA_URL")
   // For direct connections when Data Proxy is unavailable (like in Edge functions)
   directUrl = env("POSTGRES_URL_NON_POOLING")
-  // For Vercel projects with the legacy connection string pattern
-  // relationMode = "prisma" // Uncomment if needed
+  // Connection pooling configuration to avoid prepared statement conflicts
+  extensions = [pgcrypto]
+  relationMode = "foreignKeys" // Ensure proper foreign key constraints
 }
 
 model User {
