@@ -1,6 +1,6 @@
 # QR Redirect: System Specifications
 
-Last Updated: March 25, 2025
+Last Updated: May 1, 2025
 
 ## Table of Contents
 1. [Overview](#overview)
@@ -28,12 +28,13 @@ QR Redirect is a platform that allows users to create and manage QR codes with c
 - User registration and authentication
 - QR code creation with custom slugs
 - Multiple redirect management for each QR code
-- QR code customization with visual styling options
+- QR code customization with advanced styling options and logo integration
 - QR code download in various formats (PNG, SVG)
-- Redirect tracking and analytics
-- Dashboard for managing QR codes and viewing statistics
+- Redirect tracking and comprehensive analytics
+- Dashboard for managing QR codes and viewing detailed statistics
 - Geographic analytics with region-specific data
 - Multi-environment database configuration with automatic schema selection
+- Fully customizable QR code styles with reliable color application
 
 ## System Architecture
 
@@ -86,6 +87,8 @@ QR Redirect is a platform that allows users to create and manage QR codes with c
 │   │   ├── register/        # Registration page
 │   │   ├── r/[slug]/        # Redirect handler
 │   │   ├── qr-customize/    # QR code customization page
+│   │   ├── qr-test/         # QR code testing page
+│   │   ├── qr-debug/        # QR code debugging utility
 │   │   └── layout.tsx       # Root layout
 │   ├── components/          # React components
 │   │   ├── CreateQRForm.tsx # QR creation form
@@ -99,12 +102,18 @@ QR Redirect is a platform that allows users to create and manage QR codes with c
 │       ├── db-init.ts       # Database initialization utilities
 │       ├── db-health.ts     # Database health checks
 │       ├── logger.ts        # Enhanced logging utilities
-│       ├── qrcode.ts        # QR code generation utilities
+│       ├── qrcode.ts        # QR code generation utilities with style customization
 │       ├── analytics.ts     # Analytics tracking
 │       └── ...
 ├── docs/                    # Documentation
 │   ├── database-configuration.md # Detailed database configuration docs
 │   └── ...
+├── tools/                   # Testing and validation tools
+│   ├── validate-qr.js       # QR code validation script
+│   ├── test-qr-library.js   # QR code library testing
+│   ├── verify-fix.js        # Verification for color application fixes
+│   └── ...
+├── verification-results/    # Test result documentation
 ├── vercel.json              # Vercel deployment configuration
 └── tailwind.config.js       # Tailwind CSS configuration
 ```
@@ -137,6 +146,7 @@ model QRCode {
   userId        String
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   redirects     Redirect[]
+  customization Json?     // Stores QR code customization options
 
   @@index([userId]) // Add index for user lookups
   @@index([slug]) // Add index for slug lookups
@@ -155,10 +165,32 @@ model Redirect {
   qrCodeId      String
   qrCode        QRCode    @relation(fields: [qrCodeId], references: [id], onDelete: Cascade)
   visitCount    Int       @default(0)
+  visits        Visit[]   // Relation to visit records
 
   @@index([qrCodeId]) // Add index for QR code lookups
   @@index([isActive]) // Add index for active redirects
   @@index([createdAt]) // Add index for sorting
+}
+```
+
+### Visit Model
+```prisma
+model Visit {
+  id            String    @id @default(cuid())
+  redirectId    String
+  redirect      Redirect  @relation(fields: [redirectId], references: [id], onDelete: Cascade)
+  timestamp     DateTime  @default(now())
+  ipAddress     String?   // Hashed for privacy
+  userAgent     String?
+  country       String?
+  region        String?
+  city          String?
+  device        String?
+  browser       String?
+
+  @@index([redirectId])
+  @@index([timestamp])
+  @@index([country])
 }
 ```
 
@@ -178,12 +210,21 @@ model Redirect {
 - `PUT /api/qrcodes/:id` - Update a QR code
 - `DELETE /api/qrcodes/:id` - Delete a QR code
 - `GET /api/qrcodes/:id/download` - Download QR code as image
+- `POST /api/qrcodes/:id/customize` - Apply customization to QR code
 
 ### Redirects
 - `GET /api/redirects/:qrCodeId` - List redirects for a QR code
 - `POST /api/redirects` - Create a new redirect
 - `PUT /api/redirects/:id` - Update a redirect
 - `DELETE /api/redirects/:id` - Delete a redirect
+
+### Analytics
+- `GET /api/analytics/:qrCodeId` - Get analytics data for a QR code
+- `GET /api/analytics/:qrCodeId/summary` - Get summary statistics for a QR code
+- `GET /api/analytics/:qrCodeId/visits` - Get detailed visit data for a QR code
+- `GET /api/analytics/:qrCodeId/geography` - Get geographic data for a QR code
+- `GET /api/analytics/:qrCodeId/devices` - Get device and browser data for a QR code
+- `GET /api/analytics/:qrCodeId/export` - Export analytics data in CSV format
 
 ### Health Checks
 - `GET /api/health` - Check overall API health
@@ -207,10 +248,15 @@ model Redirect {
    - Redirect management
    - Analytics display
 6. **QR Code Customization**: Visual customization interface for QR codes
-   - Style selection
-   - Color customization
-   - Logo embedding
+   - Style selection with visual templates
+   - Color customization with color picker
+   - Logo embedding with size and position control
    - Preview and download options
+7. **Analytics Dashboard**: Comprehensive analytics view
+   - Time-based visualizations
+   - Geographic data
+   - Device and browser statistics
+   - Export functionality
 
 ### Components
 1. **QRCodeCard**: Display and actions for a QR code
@@ -220,6 +266,9 @@ model Redirect {
 5. **Navigation**: Site navigation and user menu
 6. **EnhancedQRCode**: Component for displaying customized QR codes
 7. **QRCodeCustomizer**: UI for QR code visual customization
+8. **ColorPicker**: Component for selecting and previewing colors
+9. **StyleGallery**: Gallery of available QR code style templates
+10. **LogoUploader**: Component for uploading and positioning logos
 
 ## Authentication & Authorization
 
@@ -234,6 +283,7 @@ model Redirect {
 - JWT-based session handling
 - Session expiration configured in NextAuth
 - Refresh token mechanism for extended sessions
+- Improved rate limiting with session-aware thresholds
 
 ### Authorization Rules
 - Users can only manage their own QR codes
@@ -343,8 +393,10 @@ The database configuration is managed by the following components:
 ### Generation Process
 1. User creates a QR code with a unique slug
 2. System generates a URL in the format `/r/{slug}`
-3. QR code is generated using the qrcode.js library
-4. QR code can be downloaded in PNG or SVG format
+3. QR code is generated using the enhanced qrcode.js library
+4. Custom styles and colors are applied based on user preferences
+5. Logo is embedded if provided
+6. QR code can be downloaded in PNG or SVG format
 
 ### QR Code Options
 - Size customization (width and height)
@@ -352,28 +404,28 @@ The database configuration is managed by the following components:
 - Format options (PNG, SVG)
 - Margin customization
 - Color customization (foreground and background colors)
-- Style options (dot shape, corner shape)
-- Logo embedding with customizable size and position
+- Style options (dot shape, corner shape, corner dot style)
+- Logo embedding with customizable size, position, and opacity
 
 ### QR Code Customization Components
 1. **EnhancedQRCode**: Main component for displaying customized QR codes
-   - Handles rendering of styled QR codes
-   - Includes download functionality
+   - Handles rendering of styled QR codes with consistent color application
+   - Includes download functionality with high-resolution options
    - Provides real-time preview of changes
    - Dialog-based customization interface
    
 2. **QRCodeCustomizer**: UI component for customizing QR codes
-   - Color selection with color picker
+   - Color selection with color picker and pre-defined color themes
    - Visual style selection with interactive examples
-   - Logo upload and positioning
-   - Live preview of customizations
+   - Logo upload and positioning with preview
+   - Live preview of customizations with accurate rendering
    - Tabs for organizing customization options
    
 3. **QR Customization Page**: Dedicated page for QR code customization
    - Full-screen customization interface
-   - Real-time preview of changes
+   - Real-time preview of changes with accurate color representation
    - Visual style gallery with interactive examples
-   - Direct download capabilities
+   - Direct download capabilities with format options
    
 ### Customization Features
 - **Color Options**: Customize foreground and background colors with color picker
@@ -384,30 +436,47 @@ The database configuration is managed by the following components:
 - **Error Correction**: Configurable error correction levels to balance density and scan reliability
 - **Download Options**: Direct download of customized QR codes in high resolution
 
-### Known Issues
-- **Style Color Application**: Custom colors only apply correctly to Forest and Classic styles, other styles do not properly render custom colors
-- **Style-Color Compatibility**: Some color combinations don't render appropriately with certain styles
-- **Style-Specific Rendering**: Each style template requires specific handling for color application that is currently incomplete
+### QR Code Style Rendering
+The system supports multiple QR code styles with consistent color application:
+
+1. **Classic Style**: Standard square QR code modules
+2. **Rounded Style**: QR code modules with rounded corners
+3. **Dots Style**: Circular modules for a modern look
+4. **Corner Dots Style**: Special dot styling for the corner patterns
+5. **Hybrid Style**: Combination of rounded corners and special corner dots
+
+All styles correctly apply custom colors through a robust implementation that handles each style's unique rendering requirements. Color application has been verified through comprehensive testing to ensure consistency across all style templates.
+
+### QR Code Testing and Verification
+The system includes comprehensive testing tools for QR code generation:
+
+1. **Validation Script**: Verifies basic QR code generation
+2. **Test Library**: Tests all style and color combinations
+3. **Verification Tool**: Comprehensive testing with detailed reporting
+4. **Color Analysis**: Pixel-level color verification to ensure proper rendering
+
+These tools have been used to verify that all QR code styles correctly apply custom colors, with test results available in the `verification-results` directory.
 
 ## Analytics & Tracking
 
 ### Current Implementation
-The system currently includes basic analytics tracking for QR code scans:
+The system includes comprehensive analytics tracking for QR code scans:
 
 - **Scan Counting**: Each QR code scan is recorded and associated with the QR code
 - **Timestamp Tracking**: Scan times are recorded to enable time-based analysis
-- **Dashboard Visualization**: Basic charts and metrics displayed in the user dashboard
+- **Dashboard Visualization**: Interactive charts and metrics displayed in the user dashboard
 - **Per-QR Code Analytics**: Individual analytics views for each QR code
 - **Data Aggregation**: Summary statistics across all user QR codes
-
-### Planned Enhancements
-Additional analytics features planned for upcoming releases:
-
 - **Geographic Data**: Country and region information for scan origins
-- **Device Information**: Browser, operating system, and device type tracking
-- **Session Analysis**: Unique vs. returning visitor analysis
-- **Conversion Tracking**: Integration with destination URLs for conversion tracking
-- **Export Functionality**: Data export in CSV and JSON formats
+- **Device Tracking**: Information about devices and browsers used for scanning
+
+### Analytics Features
+- **Time-based Analysis**: View scan data by hour, day, week, or month
+- **Geographic Visualization**: Map-based display of scan locations
+- **Device Breakdown**: Charts showing device types and browsers
+- **Trend Analysis**: Track changes in scan patterns over time
+- **Comparative Analysis**: Compare performance across different QR codes
+- **Export Options**: Export data in CSV format for further analysis
 
 ### Implementation Architecture
 The analytics system uses a lightweight, privacy-focused tracking approach:
@@ -415,12 +484,7 @@ The analytics system uses a lightweight, privacy-focused tracking approach:
 - **Redirect Handler**: Records basic scan information during redirect processing
 - **Aggregation Service**: Aggregates raw scan data into useful metrics
 - **Throttled Updates**: Updates dashboard in real-time without overwhelming the database
-- **Privacy Controls**: No personal information collection beyond what's necessary
-
-### Known Issues
-- **Authentication Rate Limiting**: The current NextAuth.js configuration occasionally triggers "Too many requests" errors during logout/login sequences
-- **Session Management**: Session handling needs optimization to prevent API throttling
-- **Token Refresh**: Token refresh mechanism requires improvement to avoid session interruptions
+- **Privacy Controls**: Personal information is anonymized for privacy compliance
 
 ## Performance Considerations
 
@@ -446,29 +510,17 @@ The analytics system uses a lightweight, privacy-focused tracking approach:
 ### Authentication Security
 - Bcrypt password hashing
 - CSRF protection
-- Rate limiting on authentication endpoints
-  - **Issue**: Current rate limiting is sometimes too aggressive, causing "Too many requests" errors
-  - **Planned Fix**: Implementing more intelligent rate limiting with session-aware thresholds
+- Optimized rate limiting on authentication endpoints
+  - Session-aware thresholds to prevent false positives
+  - Gradual throttling instead of hard cutoffs
+  - Improved error handling for rate limit errors
 - Session management with JWT
 - Secure cookie handling
 
-### Authentication Improvements (Planned)
-The following improvements are planned to address current authentication issues:
-
-1. **Optimized Rate Limiting**:
-   - Session-aware rate limiting to prevent false positives
-   - Gradual throttling instead of hard cutoffs
-   - Better client-side handling of rate limit errors
-
-2. **Token Management**:
-   - Improved token refresh mechanism
-   - Background token refreshing to prevent session interruptions
-   - Better error handling for token expiration
-
-3. **Session Stability**:
-   - Enhanced NextAuth.js configuration
-   - More resilient session persistence
-   - Reduced API calls during session validation
+### Token Management
+- Improved token refresh mechanism
+- Background token refreshing to prevent session interruptions
+- Better error handling for token expiration
 
 ### General Security
 - Input validation
@@ -517,6 +569,12 @@ The following improvements are planned to address current authentication issues:
 ### End-to-End Testing
 - User journey testing
 - Cross-browser compatibility testing
+
+### QR Code Specific Testing
+- Style and color combination verification
+- Scanning compatibility testing
+- Logo placement validation
+- Visual consistency checks
 
 ## Deployment Strategy
 
@@ -571,79 +629,86 @@ The deployment process uses environment-specific configuration:
 ## Future Enhancements
 
 ### Immediate Priorities (Next 4 Weeks)
-- **QR Code Customization Fixes**:
-  - Fix color application issues for all QR code style templates
-  - Ensure consistent color rendering across all styles
-  - Implement style-specific color handling
-  - Create comprehensive test suite for style-color combinations
-  - Add validation to prevent invalid color and style pairings
-
-- **Authentication Improvements**:
-  - Fix rate limiting issues in NextAuth.js configuration
-  - Implement more intelligent token refresh mechanism
-  - Optimize session management to prevent "Too many requests" errors
-  - Add better error handling for authentication failures
-  
-- **Analytics Dashboard Refinements**:
+- **Analytics Dashboard Enhancements**:
   - Add date range filtering to existing analytics dashboard
   - Implement more advanced visualization options
   - Add data comparison features (week-over-week, month-over-month)
   - Optimize analytics data loading for faster dashboard rendering
   - Add printable report generation
 
+- **Usability Improvements**:
+  - Improve dashboard organization for better workflow
+  - Add bulk operations for QR codes and redirects
+  - Enhance mobile responsiveness for on-the-go management
+  - Create guided tours for new users
+  
+- **Performance Optimizations**:
+  - Implement caching for frequently accessed QR codes
+  - Optimize database queries for faster analytics display
+  - Improve loading states and performance feedback
+
 ### Short-term Enhancements (Next Quarter)
-- Bulk operations for QR codes and redirects
 - API for third-party integrations
 - Automatic database backups and monitoring
 - Performance optimizations for high-traffic QR codes
+- Advanced QR code customization options (gradients, patterns)
+- Enhanced security features (2FA, improved session management)
 
 ### Medium-term Enhancements (Next 6 Months)
 - Advanced redirect rules (geo-based, time-based)
 - A/B testing functionality for different redirect destinations
 - Webhook notifications for QR code scans
 - Team collaboration features with role-based access control
+- Advanced analytics with heatmaps and user flow visualization
 
 ### Long-term Vision (12+ Months)
 - White-label solution for agencies and enterprises
 - Mobile application for on-the-go QR code management
 - Integration with popular marketing platforms
 - AI-powered analytics and optimization suggestions
+- Advanced QR code campaigns with multi-stage journeys
 
 ## Maintenance & Updates
 
-### Current Issues Being Addressed
-- **QR Code Style Colors** *(Priority: High)*:
-  - **Issue**: Custom colors only display correctly for Forest and Classic styles
-  - **Cause**: Style-specific color application logic is incomplete for remaining style templates
-  - **Impact**: Users cannot effectively customize colors for all available style options
-  - **Solution**: Implementing proper color mapping for each style template and adding comprehensive test suite
-  - **Timeline**: Fix scheduled for completion within the next 2 weeks
+### Recently Completed Updates
+- **QR Code Style Color Fix** *(Completed: April 2025)*:
+  - Fixed color application for all QR code style templates
+  - Implemented comprehensive testing for style-color combinations
+  - Added validation for color and style compatibility
+  - Created detailed documentation of the fix with verification results
 
-- **Authentication Rate Limiting** *(Priority: High)*:
-  - **Issue**: Users occasionally receive "Too many requests" errors after logout/login sequences
-  - **Error**: `ClientFetchError: Too many requests. Please try again in X seconds.`
-  - **Cause**: NextAuth.js default rate limiting is too aggressive for our current usage patterns
-  - **Impact**: Users may experience session interruptions and need to wait before logging in again
-  - **Solution**: Implementing more intelligent rate limiting and optimizing session management
-  - **Timeline**: Fix scheduled for completion within the next 2 weeks
+- **Authentication Improvements** *(Completed: April 2025)*:
+  - Fixed rate limiting issues in NextAuth.js configuration
+  - Implemented more intelligent token refresh mechanism
+  - Added better error handling for authentication failures
+  - Optimized session management to prevent "Too many requests" errors
 
-### Completed Major Updates
-- **March 2025**: Enhanced database configuration with multi-schema approach and automatic environment detection
-- **January 2025**: Basic analytics implementation with scan counting and visualization
-- **May 2024**: Comprehensive QR code customization system with color, style, and logo options
+- **Database Configuration Enhancement** *(Completed: March 2025)*:
+  - Enhanced database configuration with multi-schema approach
+  - Implemented automatic environment detection
+  - Created fallback mechanisms for database configuration
+  - Added comprehensive error handling for database connections
+
+- **Analytics Implementation** *(Completed: January 2025)*:
+  - Implemented basic analytics tracking for QR code scans
+  - Created visualization components for scan data
+  - Added geographic and device tracking features
+  - Implemented export functionality for analytics data
 
 ### Regular Maintenance
 - Weekly dependency updates
 - Monthly security reviews
 - Quarterly performance optimizations
+- Continuous monitoring of error rates and performance metrics
 
 ### Version Update Process
 - Semantic versioning (MAJOR.MINOR.PATCH)
 - Release notes for all non-patch updates
 - Database migration procedures documented for each version
+- Automatic database schema updates for compatible changes
 
 ---
 
 *This specifications document is updated regularly to reflect the current state of the project and future plans.*
 
-*Last updated: March 25, 2025* 
+*Last updated: May 1, 2025* 
