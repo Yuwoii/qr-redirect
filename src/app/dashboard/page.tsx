@@ -75,12 +75,18 @@ export default async function DashboardPage() {
                     <QRCodeDisplay url={qrUrl} size={150} />
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     <Link
                       href={`/dashboard/qrcodes/${qrCode.id}`}
                       className="bg-indigo-700 text-white px-3 py-2 rounded-md text-sm text-center hover:bg-indigo-800 transition-colors shadow-soft"
                     >
                       Manage
+                    </Link>
+                    <Link
+                      href={`/dashboard/qrcodes/${qrCode.id}/analytics`}
+                      className="bg-emerald-700 text-white px-3 py-2 rounded-md text-sm text-center hover:bg-emerald-800 transition-colors shadow-soft"
+                    >
+                      Analytics
                     </Link>
                     <a
                       href={qrUrl}

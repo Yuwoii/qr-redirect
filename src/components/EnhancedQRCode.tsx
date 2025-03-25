@@ -88,7 +88,7 @@ export default function EnhancedQRCode({
                   Customize
                 </Button>
               </DialogTrigger>
-              <DialogContent className="max-w-5xl w-[95vw]">
+              <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                   <DialogTitle>Customize QR Code</DialogTitle>
                   <DialogDescription>

@@ -23,7 +23,7 @@ const nextConfig = {
   // Set up external packages for better serverless performance
   experimental: {
     // Optimize packages that are better externalized
-    serverComponentsExternalPackages: ['prisma', '@prisma/client'],
+    serverExternalPackages: ['prisma', '@prisma/client'],
     // Enable improved server-side handling
     serverMinification: true,
   },

@@ -97,6 +97,17 @@ export default async function QRCodeDetailPage({ params }: QRCodeDetailPageProps
               </a>
             </div>
           </div>
+          
+          <div className="bg-white p-6 rounded-md shadow-soft border border-gray-100 mt-6">
+            <h2 className="text-lg font-semibold mb-4 text-gray-900">Analytics</h2>
+            <p className="text-gray-700 mb-4">View detailed analytics for this QR code</p>
+            <Link
+              href={`/dashboard/qrcodes/${qrCode.id}/analytics`}
+              className="bg-emerald-700 text-white px-4 py-2 rounded-md text-center block hover:bg-emerald-800 transition-colors shadow-soft"
+            >
+              View Analytics
+            </Link>
+          </div>
         </div>
         
         <div>
