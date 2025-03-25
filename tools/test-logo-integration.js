@@ -41,11 +41,11 @@ function testLogoImplementation() {
     const containsGradient = logoContent.includes('bg-gradient');
     console.log(`✓ Logo has proper gradient: ${containsGradient ? '✅ PASS' : '❌ FAIL'}`);
     
-    const containsQRElements = logoContent.includes('QR Code Elements');
+    const containsQRElements = logoContent.includes('QR Code Elements') || logoContent.includes('QR Position Markers');
     console.log(`✓ Logo has QR code elements: ${containsQRElements ? '✅ PASS' : '❌ FAIL'}`);
     
-    const containsRedirectArrow = logoContent.includes('Arrow Indicating Redirection');
-    console.log(`✓ Logo has redirect arrow: ${containsRedirectArrow ? '✅ PASS' : '❌ FAIL'}`);
+    const hasNoArrow = !logoContent.includes('Arrow Indicating Redirection');
+    console.log(`✓ Logo has no redirect arrow element: ${hasNoArrow ? '✅ PASS' : '❌ FAIL'}`);
   }
   
   console.log(`\n🏁 Logo implementation test: ${logoExists && faviconExists ? '✅ PASSED' : '❌ FAILED'}`);
@@ -66,22 +66,22 @@ function testQRCodePreviews() {
     'hybrid-blue.png'
   ];
   
-  const verificationResultsDir = path.join(process.cwd(), 'verification-results');
+  const publicVerificationResultsDir = path.join(process.cwd(), 'public', 'verification-results');
   
-  // Check if verification-results directory exists
-  const dirExists = fs.existsSync(verificationResultsDir);
-  console.log(`✓ Verification results directory exists: ${dirExists ? '✅ PASS' : '❌ FAIL'}`);
+  // Check if public/verification-results directory exists
+  const dirExists = fs.existsSync(publicVerificationResultsDir);
+  console.log(`✓ Public verification results directory exists: ${dirExists ? '✅ PASS' : '❌ FAIL'}`);
   
   if (!dirExists) {
     return false;
   }
   
-  // Check if all preview files exist
+  // Check if all preview files exist in public directory
   let allFilesExist = true;
   for (const file of previewFiles) {
-    const filePath = path.join(verificationResultsDir, file);
+    const filePath = path.join(publicVerificationResultsDir, file);
     const exists = fileExists(filePath);
-    console.log(`✓ Preview file ${file}: ${exists ? '✅ PASS' : '❌ FAIL'}`);
+    console.log(`✓ Preview file in public dir ${file}: ${exists ? '✅ PASS' : '❌ FAIL'}`);
     if (!exists) {
       allFilesExist = false;
     }
@@ -91,17 +91,17 @@ function testQRCodePreviews() {
   const homepagePath = path.join(process.cwd(), 'src', 'app', 'page.tsx');
   const homepageExists = fileExists(homepagePath);
   
-  let homepageUsesNewPreviews = false;
+  let homepageUsesCorrectPreviews = false;
   if (homepageExists) {
     const homepageContent = fs.readFileSync(homepagePath, 'utf8');
-    homepageUsesNewPreviews = previewFiles.every(file => 
+    homepageUsesCorrectPreviews = previewFiles.every(file => 
       homepageContent.includes(`/verification-results/${file}`)
     );
-    console.log(`✓ Homepage references new previews: ${homepageUsesNewPreviews ? '✅ PASS' : '❌ FAIL'}`);
+    console.log(`✓ Homepage references correct previews: ${homepageUsesCorrectPreviews ? '✅ PASS' : '❌ FAIL'}`);
   }
   
-  console.log(`\n🏁 QR code previews test: ${allFilesExist && homepageUsesNewPreviews ? '✅ PASSED' : '❌ FAILED'}`);
-  return allFilesExist && homepageUsesNewPreviews;
+  console.log(`\n🏁 QR code previews test: ${allFilesExist && homepageUsesCorrectPreviews ? '✅ PASSED' : '❌ FAILED'}`);
+  return allFilesExist && homepageUsesCorrectPreviews;
 }
 
 // Run tests and summarize results
