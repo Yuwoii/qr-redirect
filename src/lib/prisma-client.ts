@@ -243,11 +243,6 @@ export function createPrismaClient(): PrismaClient {
     errorFormat: 'pretty'
   };
   
-  // Add connection pool options if available
-  if (dbConfig.poolConfig) {
-    prismaOptions.connectionLimit = dbConfig.poolConfig;
-  }
-  
   // Create the PrismaClient instance
   const client = new PrismaClient(prismaOptions);
   
