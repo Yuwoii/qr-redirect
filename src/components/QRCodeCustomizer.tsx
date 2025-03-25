@@ -330,8 +330,9 @@ export default function QRCodeCustomizer({
           throw new Error('Could not get canvas context');
         }
         
-        // Clear canvas
-        ctx.clearRect(0, 0, size, size);
+        // Clear canvas with white background to ensure contrast
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, size, size);
         
         // Create QR code
         const qr = qrcode(0, 'M');
@@ -348,7 +349,7 @@ export default function QRCodeCustomizer({
           }
         }
         
-        // Apply current options for preview
+        // Apply current options for preview ensuring dark color is properly set
         const currentOptions: QRCodeCustomOptions = {
           width: size,
           margin: 2,
@@ -358,8 +359,8 @@ export default function QRCodeCustomizer({
           },
           style: {
             dotShape: options.style?.dotShape as 'square' | 'rounded' | 'dots',
-            cornerShape: options.style?.cornerShape === 'rounded' ? 'rounded' : 'square',
-            cornerDotStyle: options.style?.cornerDotStyle === 'dot' ? 'dot' : 'square',
+            cornerShape: options.style?.cornerShape as 'square' | 'rounded',
+            cornerDotStyle: options.style?.cornerDotStyle as 'square' | 'dot',
           },
         };
         
@@ -371,11 +372,9 @@ export default function QRCodeCustomizer({
           await addLogoToQRCode(ctx, logoFile, {
             ...currentOptions,
             logo: {
-              width: options.logo?.width || 100,
-              height: options.logo?.height || 100,
               opacity: options.logo?.opacity || 1,
-              borderRadius: options.logo?.borderRadius || 0,
               border: options.logo?.border !== false,
+              borderColor: options.logo?.borderColor || '#ffffff',
             },
           });
         }
@@ -400,11 +399,9 @@ export default function QRCodeCustomizer({
     options.style?.cornerShape,
     options.style?.cornerDotStyle,
     logoFile,
-    options.logo?.width,
-    options.logo?.height,
     options.logo?.opacity,
-    options.logo?.borderRadius,
     options.logo?.border,
+    options.logo?.borderColor,
   ]);
   
   // Handle logo file upload
@@ -512,14 +509,11 @@ export default function QRCodeCustomizer({
           {error ? (
             <div className="text-red-500">Error: {error}</div>
           ) : qrCodeDataUrl ? (
-            <div className="bg-white p-4 border rounded-md flex justify-center items-center" style={{ width: 320, height: 320 }}>
-              <img
-                src={qrCodeDataUrl}
-                alt="QR Code Preview"
-                className="max-w-full max-h-full"
-                style={{ width: 300, height: 300, objectFit: 'contain' }}
-              />
-            </div>
+            <img
+              src={qrCodeDataUrl}
+              alt="QR Code Preview"
+              className="max-w-full border rounded-md"
+            />
           ) : (
             <div className="flex items-center justify-center w-64 h-64 bg-gray-100 rounded-md">
               Loading...
@@ -776,75 +770,129 @@ export default function QRCodeCustomizer({
               <CardHeader>
                 <CardTitle>Logo Settings</CardTitle>
                 <CardDescription>
-                  Add a custom logo to your QR code
+                  Add a logo to your QR code
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="logoUpload">Upload Logo</Label>
-                  <div className="flex items-center gap-2">
-                    <Input
-                      id="logoUpload"
-                      type="file"
-                      accept="image/*"
-                      onChange={handleLogoChange}
-                      className="flex-1"
-                    />
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="logoFile">Upload Logo</Label>
                     {logoPreviewUrl && (
-                      <Button variant="outline" onClick={handleRemoveLogo}>
-                        Remove
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={handleRemoveLogo}
+                      >
+                        Remove Logo
                       </Button>
                     )}
                   </div>
                   
-                  {logoPreviewUrl && (
-                    <div className="mt-4 flex justify-center">
-                      <div className="border rounded p-2 bg-white">
-                        <img
-                          src={logoPreviewUrl}
-                          alt="Logo Preview"
-                          className="max-w-full max-h-20"
-                        />
+                  <div className="flex flex-col space-y-2">
+                    <div>
+                      <Input 
+                        id="logoFile" 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleLogoChange}
+                        className="hidden"
+                      />
+                      <Label 
+                        htmlFor="logoFile" 
+                        className="cursor-pointer bg-white border border-gray-300 hover:bg-gray-50 text-gray-900 px-4 py-2 rounded-md inline-block"
+                      >
+                        Choose file...
+                      </Label>
+                    </div>
+                    
+                    {logoPreviewUrl && (
+                      <div className="mt-2">
+                        <div className="w-20 h-20 rounded-md overflow-hidden border border-gray-200">
+                          <img src={logoPreviewUrl} alt="Logo Preview" className="w-full h-full object-contain" />
+                        </div>
                       </div>
+                    )}
+                  </div>
+                  
+                  {logoPreviewUrl && (
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="logoOpacity">Logo Opacity</Label>
+                        <div className="flex items-center space-x-2">
+                          <Slider
+                            id="logoOpacity"
+                            min={10}
+                            max={100}
+                            step={5}
+                            value={[(options.logo?.opacity || 1) * 100]}
+                            onValueChange={(value) => 
+                              handleNestedOptionChange('logo', 'opacity', value[0] / 100)
+                            }
+                          />
+                          <span className="w-16 text-center">
+                            {(options.logo?.opacity || 1) * 100}%
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Switch
+                            id="logoBorder"
+                            checked={options.logo?.border !== false}
+                            onCheckedChange={(checked) => 
+                              handleNestedOptionChange('logo', 'border', checked)
+                            }
+                          />
+                          <Label htmlFor="logoBorder">Add Border</Label>
+                        </div>
+                      </div>
+                      
+                      {options.logo?.border && (
+                        <div className="space-y-2">
+                          <Label htmlFor="logoBorderColor">Border Color</Label>
+                          <div>
+                            <button
+                              type="button"
+                              onClick={() => 
+                                setIsColorPickerOpen(prev => ({
+                                  ...prev,
+                                  border: !prev.border
+                                }))
+                              }
+                              className="w-10 h-10 rounded-md border border-gray-300"
+                              style={{ 
+                                backgroundColor: options.logo?.borderColor || '#ffffff' 
+                              }}
+                            />
+                            
+                            {isColorPickerOpen.border && (
+                              <div className="absolute z-10 mt-1">
+                                <div 
+                                  className="fixed inset-0" 
+                                  onClick={() => 
+                                    setIsColorPickerOpen(prev => ({
+                                      ...prev,
+                                      border: false
+                                    }))
+                                  }
+                                />
+                                <div className="relative z-20">
+                                  <SketchPicker
+                                    color={options.logo?.borderColor || '#ffffff'}
+                                    onChange={(color) => 
+                                      handleNestedOptionChange('logo', 'borderColor', color.hex)
+                                    }
+                                  />
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
-                
-                {logoFile && (
-                  <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="logoOpacity">Logo Opacity</Label>
-                      <div className="flex items-center space-x-2">
-                        <Slider
-                          id="logoOpacity"
-                          min={10}
-                          max={100}
-                          step={5}
-                          value={[(options.logo?.opacity || 1) * 100]}
-                          onValueChange={(value) => 
-                            handleNestedOptionChange('logo', 'opacity', value[0] / 100)
-                          }
-                        />
-                        <span className="w-16 text-center">
-                          {Math.round((options.logo?.opacity || 1) * 100)}%
-                        </span>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <div className="flex items-center space-x-2">
-                        <Switch
-                          id="logoBorder"
-                          checked={options.logo?.border !== false}
-                          onCheckedChange={(checked) => 
-                            handleNestedOptionChange('logo', 'border', checked)
-                          }
-                        />
-                        <Label htmlFor="logoBorder">Add Border</Label>
-                      </div>
-                    </div>
-                  </div>
-                )}
               </CardContent>
             </Card>
           </TabsContent>

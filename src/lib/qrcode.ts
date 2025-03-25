@@ -48,6 +48,7 @@ export interface QRCodeCustomOptions {
     src?: string;
     opacity?: number;
     border?: boolean;
+    borderColor?: string;
   };
   
   // Style options
@@ -288,7 +289,8 @@ export async function drawCustomQRCode(
         const x = margin + col * moduleSize;
         const y = margin + row * moduleSize;
         
-        // Set the fill style explicitly for each module to ensure consistent color application
+        // Important: Set the fill style for EACH drawing operation
+        // This ensures the color is consistently applied
         ctx.fillStyle = darkColor;
         
         // Check if this is a special position (e.g., corner)
@@ -303,34 +305,30 @@ export async function drawCustomQRCode(
           (row >= 2 && row < 5 && col >= moduleCount - 5 && col < moduleCount - 2) || // Top-right corner dot
           (row >= moduleCount - 5 && row < moduleCount - 2 && col >= 2 && col < 5); // Bottom-left corner dot
         
-        try {
-          if (isCorner && options.style?.cornerShape === 'rounded') {
-            // Draw rounded corner
-            drawRoundedSquare(ctx, x, y, moduleSize, moduleSize, moduleSize / 3, darkColor);
-          } else if (isCornerDot && options.style?.cornerDotStyle === 'dot') {
-            // Draw corner dot as circle
-            drawCircle(ctx, x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2, darkColor);
-          } else {
-            // Draw regular module based on selected style
-            switch (options.style?.dotShape) {
-              case 'rounded':
-                drawRoundedSquare(ctx, x, y, moduleSize, moduleSize, moduleSize / 4, darkColor);
-                break;
-              case 'dots':
-                drawCircle(ctx, x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2, darkColor);
-                break;
-              case 'square':
-              default:
-                // Directly set fill style before each draw operation
-                ctx.fillStyle = darkColor;
-                ctx.fillRect(x, y, moduleSize, moduleSize);
-                break;
-            }
+        if (isCorner && options.style?.cornerShape === 'rounded') {
+          // Draw rounded corner - always use the dark color
+          drawRoundedSquare(ctx, x, y, moduleSize, moduleSize, moduleSize / 3, darkColor);
+        } else if (isCornerDot && options.style?.cornerDotStyle === 'dot') {
+          // Draw corner dot as circle - always use the dark color
+          drawCircle(ctx, x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2, darkColor);
+        } else {
+          // Draw regular module based on selected style
+          switch (options.style?.dotShape) {
+            case 'rounded':
+              // Always use the dark color for rounded shape
+              drawRoundedSquare(ctx, x, y, moduleSize, moduleSize, moduleSize / 4, darkColor);
+              break;
+            case 'dots':
+              // Always use the dark color for dots
+              drawCircle(ctx, x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2, darkColor);
+              break;
+            case 'square':
+            default:
+              // Explicitly set fill style before drawing
+              ctx.fillStyle = darkColor;
+              ctx.fillRect(x, y, moduleSize, moduleSize);
+              break;
           }
-        } catch (error) {
-          // Fallback to simple rectangle if any drawing method fails
-          ctx.fillStyle = darkColor;
-          ctx.fillRect(x, y, moduleSize, moduleSize);
         }
       }
     }
@@ -353,7 +351,7 @@ export async function addLogoToQRCode(
   
   try {
     const canvasSize = options.width || 300;
-    // Fixed logo size at 20% of QR code
+    // Fixed logo size at 20% of QR code size
     const logoWidth = canvasSize * 0.2;
     const logoHeight = logoWidth;
     
@@ -391,6 +389,18 @@ export async function addLogoToQRCode(
         logoWidth + 2 * borderWidth, 
         logoHeight + 2 * borderWidth
       );
+      
+      // Draw border
+      if (options.logo?.borderColor) {
+        ctx.strokeStyle = options.logo.borderColor;
+        ctx.lineWidth = borderWidth;
+        ctx.strokeRect(
+          x - borderWidth / 2, 
+          y - borderWidth / 2, 
+          logoWidth + borderWidth, 
+          logoHeight + borderWidth
+        );
+      }
     } else {
       ctx.fillRect(x, y, logoWidth, logoHeight);
     }
@@ -466,7 +476,7 @@ function drawCircle(
   
   // Draw the circle path
   ctx.beginPath();
-  ctx.arc(x, y, radius, 0, 2 * Math.PI);
+  ctx.arc(x, y, radius, 0, Math.PI * 2, false);
   ctx.closePath();
   
   // Fill the path with the specified color
@@ -496,7 +506,8 @@ function mergeOptions(customOptions: Partial<QRCodeCustomOptions> = {}): QRCodeC
     logo: customOptions.logo ? {
       opacity: customOptions.logo.opacity !== undefined ? customOptions.logo.opacity : 1,
       border: customOptions.logo.border !== undefined ? customOptions.logo.border : true,
-      src: customOptions.logo.src
+      borderColor: customOptions.logo.borderColor || '#ffffff',
+      ...customOptions.logo
     } : undefined
   };
 }
