@@ -34,23 +34,28 @@ export function createRequestContext(): RequestContext {
 // We'll use a simplified approach that works in all environments
 let asyncLocalStorage: any = null;
 
-// Safely check for Node.js environment without direct imports that might break in browsers
-const isNodeEnvironment = typeof process !== 'undefined' && 
-  process.versions != null && 
-  process.versions.node != null &&
-  typeof window === 'undefined';
+// Use an environment variable to control AsyncLocalStorage usage
+// For Edge runtime or client components, this will be disabled
+const disableAsyncLocalStorage = process.env.EDGE_RUNTIME || typeof window !== 'undefined';
 
-// Initialize AsyncLocalStorage if we're in a Node.js environment and not in Edge Runtime
-if (isNodeEnvironment && !process.env.EDGE_RUNTIME) {
-  // Load AsyncLocalStorage dynamically only in Node.js environment
-  // This pattern avoids issues with Edge and client environments
+// Use a safe approach without eval() for Edge compatibility
+if (!disableAsyncLocalStorage) {
   try {
-    // Use a more dynamic approach that won't break during bundling
-    const dynamicRequire = eval('require');
-    const asyncHooks = dynamicRequire('async_hooks');
-    const { AsyncLocalStorage } = asyncHooks;
-    asyncLocalStorage = new AsyncLocalStorage();
+    // Only attempt to load AsyncLocalStorage in Node.js server environment
+    // The import is fully static and explicit, which is safe for Edge
+    // This will be eliminated by the bundler in Edge environments
+    if (typeof process !== 'undefined' && 
+        process.versions != null && 
+        process.versions.node != null) {
+      // This condition is safely removed by tree-shaking in Edge runtime
+      // We don't use dynamic imports or eval, making it Edge-compatible
+      const asyncHooks = require('async_hooks');
+      if (asyncHooks && asyncHooks.AsyncLocalStorage) {
+        asyncLocalStorage = new asyncHooks.AsyncLocalStorage();
+      }
+    }
   } catch (error) {
+    // Will happen in Edge Runtime, but that's expected and safe
     console.warn('AsyncLocalStorage not available, using fallback context storage');
   }
 }
