@@ -253,7 +253,15 @@ export default function QRCodeCustomizer({
             {
               width: 120, // Small size for previews
               margin: 1,
-              color: { dark: '#000000', light: '#ffffff' },
+              // Pass proper colors to ensure correct preview rendering
+              color: {
+                dark: template.name === "Forest" ? "#0F766E" : 
+                     template.name === "Rounded" ? "#7E22CE" : 
+                     template.name === "Dots" ? "#BE123C" :
+                     template.name === "Corner Dots" ? "#B45309" :
+                     template.name === "Hybrid" ? "#0063B3" : "#000000",
+                light: "#ffffff"
+              },
               style: {
                 dotShape: template.options.style.dotShape,
                 cornerShape: template.options.style.cornerShape,
