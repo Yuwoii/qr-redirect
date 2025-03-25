@@ -20,12 +20,12 @@ const nextConfig = {
     ignoreBuildErrors: process.env.NODE_ENV === 'production',
   },
   
-  // Set up external packages for better serverless performance
+  // Experimental features
   experimental: {
-    // Optimize packages that are better externalized
-    serverExternalPackages: ['prisma', '@prisma/client'],
     // Enable improved server-side handling
     serverMinification: true,
+    // Next.js 15 uses a different approach to external packages
+    // The serverExternalPackages option has been removed in Next.js 15
   },
   
   // Optimize image handling for better performance

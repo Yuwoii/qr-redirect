@@ -30,25 +30,32 @@ export function createRequestContext(): RequestContext {
   };
 }
 
-// For server components we use node's AsyncLocalStorage if available
+// For server components we need a way to track context across async operations
+// We'll use a simplified approach that works in all environments
 let asyncLocalStorage: any = null;
 
-// We need to check if we're in a Node.js environment before importing AsyncLocalStorage
-if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+// Safely check for Node.js environment without direct imports that might break in browsers
+const isNodeEnvironment = typeof process !== 'undefined' && 
+  process.versions != null && 
+  process.versions.node != null &&
+  typeof window === 'undefined';
+
+// Initialize AsyncLocalStorage if we're in a Node.js environment and not in Edge Runtime
+if (isNodeEnvironment && !process.env.EDGE_RUNTIME) {
+  // Load AsyncLocalStorage dynamically only in Node.js environment
+  // This pattern avoids issues with Edge and client environments
   try {
-    // Using dynamic import to avoid issues with browser environments
-    import('async_hooks').then((asyncHooks) => {
-      const { AsyncLocalStorage } = asyncHooks;
-      asyncLocalStorage = new AsyncLocalStorage();
-    }).catch(() => {
-      console.warn('AsyncLocalStorage not available, request context tracking will be limited');
-    });
+    // Use a more dynamic approach that won't break during bundling
+    const dynamicRequire = eval('require');
+    const asyncHooks = dynamicRequire('async_hooks');
+    const { AsyncLocalStorage } = asyncHooks;
+    asyncLocalStorage = new AsyncLocalStorage();
   } catch (error) {
-    console.warn('AsyncLocalStorage not available, request context tracking will be limited');
+    console.warn('AsyncLocalStorage not available, using fallback context storage');
   }
 }
 
-// Fallback storage for client components or when AsyncLocalStorage is not available
+// Fallback storage for client components, Edge runtime, or when AsyncLocalStorage is not available
 const fallbackStorage = {
   requestContext: null as RequestContext | null,
 };

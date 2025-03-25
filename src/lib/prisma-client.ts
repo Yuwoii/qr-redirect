@@ -146,22 +146,18 @@ export function createPrismaClient(): PrismaClient {
     logger.debug(`Using direct URL for serverless/edge functions`, 'createPrismaClient');
   }
   
+  // Create Prisma options with proper structure
   const prismaOptions: any = {
     log: process.env.NODE_ENV === 'development' 
       ? ['error', 'warn'] 
       : ['error'],
     datasources: {
-      db: {
-        url: dbConfig.url
-      }
+      db: dbConfig.directUrl 
+        ? { url: dbConfig.url, directUrl: dbConfig.directUrl } 
+        : { url: dbConfig.url }
     },
     errorFormat: 'pretty'
   };
-  
-  // Add direct URL if available
-  if (dbConfig.directUrl) {
-    prismaOptions.datasources.db.directUrl = dbConfig.directUrl;
-  }
   
   // Add connection pool options if available
   if (dbConfig.poolConfig) {
