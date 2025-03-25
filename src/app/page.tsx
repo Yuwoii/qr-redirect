@@ -91,7 +91,7 @@ export default async function Home() {
                   <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
-                        src="/style-previews/colored/classic-blue.svg" 
+                        src="/verification-results/classic-blue.png" 
                         alt="Classic QR Code Style (Blue)" 
                         width={100} 
                         height={100} 
@@ -103,7 +103,7 @@ export default async function Home() {
                   <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
-                        src="/style-previews/colored/rounded-green.svg" 
+                        src="/verification-results/rounded-green.png" 
                         alt="Rounded QR Code Style (Green)" 
                         width={100} 
                         height={100} 
@@ -115,7 +115,7 @@ export default async function Home() {
                   <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
-                        src="/style-previews/colored/dots-purple.svg" 
+                        src="/verification-results/dots-purple.png" 
                         alt="Dots QR Code Style (Purple)" 
                         width={100} 
                         height={100} 
@@ -127,7 +127,7 @@ export default async function Home() {
                   <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
-                        src="/style-previews/colored/corner-dots-red.svg" 
+                        src="/verification-results/corner dots-red.png" 
                         alt="Corner Dots QR Code Style (Red)" 
                         width={100} 
                         height={100} 
@@ -139,26 +139,26 @@ export default async function Home() {
                   <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
-                        src="/style-previews/colored/rounded-dots-amber.svg" 
-                        alt="Rounded Dots QR Code Style (Amber)" 
+                        src="/verification-results/rounded-purple.png" 
+                        alt="Rounded QR Code Style (Purple)" 
                         width={100} 
                         height={100} 
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Rounded Dots (Amber)</p>
+                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Rounded (Purple)</p>
                   </div>
                   <div className="bg-white p-3 rounded-lg shadow-md">
                     <div className="aspect-square w-full rounded flex items-center justify-center">
                       <Image 
-                        src="/style-previews/colored/hybrid-indigo.svg" 
-                        alt="Hybrid QR Code Style (Indigo)" 
+                        src="/verification-results/hybrid-blue.png" 
+                        alt="Hybrid QR Code Style (Blue)" 
                         width={100} 
                         height={100} 
                         className="w-full h-full object-contain"
                       />
                     </div>
-                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Hybrid (Indigo)</p>
+                    <p className="text-center text-xs font-medium text-gray-700 mt-2">Hybrid (Blue)</p>
                   </div>
                 </div>
               </div>
