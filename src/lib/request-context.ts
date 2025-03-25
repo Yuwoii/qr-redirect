@@ -31,39 +31,39 @@ export function createRequestContext(): RequestContext {
 }
 
 // For server components we need a way to track context across async operations
-// We'll use a simplified approach that works in all environments
+// We'll use a simple shared context approach that's safe in all environments
+
+// Fallback storage for Edge runtime, client components, and other environments
+const fallbackStorage = {
+  requestContext: null as RequestContext | null,
+};
+
+// Detect Edge Runtime to avoid any Node.js specific APIs
+const isEdgeRuntime = typeof process !== 'undefined' && !!process.env.EDGE_RUNTIME;
+// Detect browser environment
+const isBrowser = typeof window !== 'undefined';
+
+// Only try to use AsyncLocalStorage in Node.js environments (not Edge, not browser)
 let asyncLocalStorage: any = null;
 
-// Use an environment variable to control AsyncLocalStorage usage
-// For Edge runtime or client components, this will be disabled
-const disableAsyncLocalStorage = process.env.EDGE_RUNTIME || typeof window !== 'undefined';
-
-// Use a safe approach without eval() for Edge compatibility
-if (!disableAsyncLocalStorage) {
+// We completely avoid using process.versions or any other Node.js specific APIs
+// that might cause issues in Edge Runtime
+if (!isEdgeRuntime && !isBrowser) {
   try {
-    // Only attempt to load AsyncLocalStorage in Node.js server environment
-    // The import is fully static and explicit, which is safe for Edge
-    // This will be eliminated by the bundler in Edge environments
-    if (typeof process !== 'undefined' && 
-        process.versions != null && 
-        process.versions.node != null) {
-      // This condition is safely removed by tree-shaking in Edge runtime
-      // We don't use dynamic imports or eval, making it Edge-compatible
+    // The safest approach that works with tree-shaking and Edge compatibility
+    // No process.versions check, no eval(), no dynamic imports
+    if (typeof require === 'function') {
       const asyncHooks = require('async_hooks');
-      if (asyncHooks && asyncHooks.AsyncLocalStorage) {
+      if (asyncHooks && typeof asyncHooks.AsyncLocalStorage === 'function') {
         asyncLocalStorage = new asyncHooks.AsyncLocalStorage();
       }
     }
   } catch (error) {
-    // Will happen in Edge Runtime, but that's expected and safe
-    console.warn('AsyncLocalStorage not available, using fallback context storage');
+    // Silent fallback for Edge compatibility
+    // No console.warn or console.error that might cause issues
+    asyncLocalStorage = null;
   }
 }
-
-// Fallback storage for client components, Edge runtime, or when AsyncLocalStorage is not available
-const fallbackStorage = {
-  requestContext: null as RequestContext | null,
-};
 
 /**
  * Get the current request context

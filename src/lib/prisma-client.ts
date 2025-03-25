@@ -146,15 +146,13 @@ export function createPrismaClient(): PrismaClient {
     logger.debug(`Using direct URL for serverless/edge functions`, 'createPrismaClient');
   }
   
-  // Create Prisma options with proper structure
+  // Create Prisma options with proper flat structure for datasources
   const prismaOptions: any = {
     log: process.env.NODE_ENV === 'development' 
       ? ['error', 'warn'] 
       : ['error'],
     datasources: {
-      db: dbConfig.directUrl 
-        ? { url: dbConfig.url, directUrl: dbConfig.directUrl } 
-        : { url: dbConfig.url }
+      db: { url: dbConfig.url }
     },
     errorFormat: 'pretty'
   };
@@ -164,7 +162,26 @@ export function createPrismaClient(): PrismaClient {
     prismaOptions.connectionLimit = dbConfig.poolConfig;
   }
   
-  return new PrismaClient(prismaOptions);
+  // Create the PrismaClient instance
+  const client = new PrismaClient(prismaOptions);
+  
+  // If we have a directUrl, set up a connection for direct access
+  // This is done separately from the client instantiation to avoid the validation error
+  if (dbConfig.directUrl && process.env.VERCEL === '1') {
+    logger.debug(`Setting up Edge-compatible non-pooling connection`, 'createPrismaClient');
+    try {
+      // Use a safe approach that's compatible with Prisma's validation
+      // @ts-ignore - Accessing internal property for Edge compatibility
+      if (client._engineConfig && client._engineConfig.datasources) {
+        // @ts-ignore - Accessing internal property for Edge compatibility
+        client._engineConfig.datasources.db.directUrl = dbConfig.directUrl;
+      }
+    } catch (error) {
+      logger.warn(`Could not set direct URL: ${error}`, 'createPrismaClient');
+    }
+  }
+  
+  return client;
 }
 
 /**
