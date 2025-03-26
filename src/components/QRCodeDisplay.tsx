@@ -48,10 +48,21 @@ export default function QRCodeDisplay({
         setIsLoading(true);
         setError(null);
         
-        // Merge size with options
+        // Ensure we're passing all options, including colors and style
         const mergedOptions = {
           width: size,
-          ...options
+          ...options,
+          // Ensure color object is properly structured
+          color: {
+            dark: options.color?.dark || '#000000',
+            light: options.color?.light || '#ffffff'
+          },
+          // Ensure style object is properly structured if style options are provided
+          style: options.style ? {
+            dotShape: options.style.dotShape || 'square',
+            cornerShape: options.style.cornerShape || 'square',
+            cornerDotStyle: options.style.cornerDotStyle || 'square'
+          } : undefined
         };
         
         const dataUrl = await generateQRCodeDataURL(url, mergedOptions);
@@ -95,13 +106,14 @@ export default function QRCodeDisplay({
   return (
     <div className={`relative ${className}`}>
       {qrCode ? (
-        <div className="bg-white p-2 rounded-md shadow-soft border border-gray-100">
+        <div className="bg-white p-4 rounded-md shadow-soft border border-gray-100" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
           <Image 
             src={qrCode} 
             alt="QR Code" 
             width={size} 
             height={size} 
             className="rounded-sm"
+            style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
           />
         </div>
       ) : null}

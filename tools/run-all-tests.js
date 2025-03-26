@@ -24,6 +24,11 @@ const tests = [
     description: 'Tests QR code rendering with different colors and styles'
   },
   {
+    name: 'QR Code Styles and Colors',
+    script: 'tools/test-qr-styles.js',
+    description: 'Checks if all QR code styles apply colors correctly'
+  },
+  {
     name: 'Login Functionality',
     script: 'tools/test-login.js',
     description: 'Verifies the login system is intact'
@@ -66,7 +71,8 @@ if (allPassed) {
   console.log('1. Fix the issue with QR codes becoming invisible after color changes');
   console.log('2. Remove the logo size and border radius options');
   console.log('3. Simplify the logo handling with a fixed size of 20% of the QR code');
-  console.log('4. Ensure all components render correctly');
+  console.log('4. Ensure all styles (not just classic) render with the proper colors');
+  console.log('5. Fix rounded, dots, and other QR code styles to use custom colors correctly');
 } else {
   console.error('\n⚠️ Some tests failed. Please review the test output above.');
   process.exit(1);
