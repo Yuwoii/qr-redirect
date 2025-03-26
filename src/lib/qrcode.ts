@@ -43,7 +43,7 @@ export interface QRCodeCustomOptions {
     light?: string;
   };
   
-  // Logo options
+  // Logo options - simplified, with fixed size (20% of QR code) and no border radius
   logo?: {
     src?: string;
     opacity?: number;
@@ -198,10 +198,7 @@ async function generateCustomQRCode(url: string, options: QRCodeCustomOptions): 
           errorCorrectionLevel: options.errorCorrectionLevel as 'L' | 'M' | 'Q' | 'H' || 'M',
           margin: options.margin || 1,
           width: options.width || 300,
-          color: {
-            dark: options.color?.dark || '#000000',
-            light: options.color?.light || '#ffffff'
-          }
+          color: options.color || { dark: '#000000', light: '#ffffff' }
         },
         (err) => {
           if (err) reject(err);
@@ -218,7 +215,7 @@ async function generateCustomQRCode(url: string, options: QRCodeCustomOptions): 
     const canvas = createCanvas(options.width || 300, options.width || 300);
     const ctx = canvas.getContext('2d');
     
-    // Clear canvas with the light color from options
+    // Clear canvas
     ctx.fillStyle = options.color?.light || '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
@@ -250,7 +247,6 @@ async function generateCustomQRCode(url: string, options: QRCodeCustomOptions): 
     }
     
     // Draw the QR code with custom styling based on our extracted module data
-    // Ensure we pass the complete options including colors
     await drawCustomQRCode(ctx, { modules }, options);
     
     // Add logo if provided
@@ -293,6 +289,10 @@ export async function drawCustomQRCode(
         const x = margin + col * moduleSize;
         const y = margin + row * moduleSize;
         
+        // Important: Set the fill style for EACH drawing operation
+        // This ensures the color is consistently applied
+        ctx.fillStyle = darkColor;
+        
         // Check if this is a special position (e.g., corner)
         const isCorner = 
           (row < 7 && col < 7) || // Top-left corner
@@ -306,20 +306,20 @@ export async function drawCustomQRCode(
           (row >= moduleCount - 5 && row < moduleCount - 2 && col >= 2 && col < 5); // Bottom-left corner dot
         
         if (isCorner && options.style?.cornerShape === 'rounded') {
-          // Draw rounded corner with the dark color
+          // Draw rounded corner - always use the dark color
           drawRoundedSquare(ctx, x, y, moduleSize, moduleSize, moduleSize / 3, darkColor);
         } else if (isCornerDot && options.style?.cornerDotStyle === 'dot') {
-          // Draw corner dot as circle with the dark color
+          // Draw corner dot as circle - always use the dark color
           drawCircle(ctx, x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2, darkColor);
         } else {
           // Draw regular module based on selected style
           switch (options.style?.dotShape) {
             case 'rounded':
-              // Use dark color for rounded shape
+              // Always use the dark color for rounded shape
               drawRoundedSquare(ctx, x, y, moduleSize, moduleSize, moduleSize / 4, darkColor);
               break;
             case 'dots':
-              // Use dark color for dots
+              // Always use the dark color for dots
               drawCircle(ctx, x + moduleSize / 2, y + moduleSize / 2, moduleSize / 2, darkColor);
               break;
             case 'square':

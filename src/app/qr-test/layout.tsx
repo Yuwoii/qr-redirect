@@ -1,12 +1,3 @@
-import { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-
-const inter = Inter({ subsets: ['latin'] });
-
-export const metadata: Metadata = {
-  title: 'QR Code Style Color Test',
-  description: 'Test page for QR code style colors to verify fixes for color application across all styles',
-};
 
 export default function QRTestLayout({
   children,
@@ -14,8 +5,9 @@ export default function QRTestLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="container mx-auto py-8">
+      <h1 className="text-2xl font-bold mb-4">QR Code Style and Color Test</h1>
       {children}
     </div>
   );
-} 
+}
