@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart, BarChartDataPoint } from '@/components/ui/bar-chart';
+import { BarChart } from '@/components/ui/bar-chart';
 import { TimeFilter, TimeSpan } from '@/components/ui/time-filter';
 import { TrendingUp, TrendingDown, RefreshCw } from 'lucide-react';
 import { 
@@ -12,13 +12,13 @@ import {
 } from '@/lib/analytics-data';
 
 interface ScanAnalyticsProps {
-  qrCodeId?: string;
+  qrCodeId: string;
   totalScans?: number;
 }
 
 export function ScanAnalytics({ qrCodeId, totalScans = 0 }: ScanAnalyticsProps) {
   const [timeSpan, setTimeSpan] = useState<TimeSpan>('week');
-  const [chartData, setChartData] = useState<BarChartDataPoint[]>([]);
+  const [chartData, setChartData] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [stats, setStats] = useState({
     total: 0,

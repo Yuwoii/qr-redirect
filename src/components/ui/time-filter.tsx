@@ -1,37 +1,44 @@
 'use client';
 
-import * as React from 'react';
+import React from 'react';
 import { cn } from '@/lib/utils';
 
 export type TimeSpan = 'day' | 'week' | 'month' | 'year' | 'all';
 
-interface TimeFilterProps {
+export interface TimeFilterProps {
   value: TimeSpan;
-  onChange: (value: TimeSpan) => void;
+  onChange: (timeSpan: TimeSpan) => void;
   className?: string;
 }
 
-export function TimeFilter({ value, onChange, className }: TimeFilterProps) {
-  const options: Array<{ value: TimeSpan; label: string }> = [
-    { value: 'day', label: 'Today' },
-    { value: 'week', label: 'Week' },
-    { value: 'month', label: 'Month' },
-    { value: 'year', label: 'Year' },
-    { value: 'all', label: 'All Time' },
+export function TimeFilter({
+  value,
+  onChange,
+  className = '',
+}: TimeFilterProps) {
+  const timeSpans: {
+    value: TimeSpan;
+    label: string;
+  }[] = [
+    { value: 'day', label: '24h' },
+    { value: 'week', label: '7d' },
+    { value: 'month', label: '30d' },
+    { value: 'year', label: '1y' },
+    { value: 'all', label: 'All' },
   ];
 
   return (
-    <div className={cn("flex space-x-1 rounded-full bg-gray-100 p-1", className)}>
-      {options.map((option) => (
+    <div className={cn("inline-flex bg-gray-100 rounded-lg p-1", className)}>
+      {timeSpans.map((option) => (
         <button
           key={option.value}
-          onClick={() => onChange(option.value)}
           className={cn(
-            "px-3 py-1 text-xs font-medium rounded-full transition-colors",
+            "px-3 py-1 text-xs font-medium rounded-md transition-colors",
             value === option.value
-              ? "bg-white text-indigo-700 shadow-sm"
-              : "text-gray-600 hover:text-gray-900"
+              ? "bg-white shadow-sm text-gray-800"
+              : "text-gray-600 hover:text-gray-800"
           )}
+          onClick={() => onChange(option.value)}
         >
           {option.label}
         </button>
