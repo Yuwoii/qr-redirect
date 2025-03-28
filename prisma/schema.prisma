@@ -17,23 +17,26 @@ model User {
   name          String?
   email         String    @unique
   password      String
+  namespace     String    @unique @default(cuid()) // Unique namespace for user's QR codes
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   qrCodes       QRCode[]
 
   @@index([email]) // Add index for email lookups
+  @@index([namespace]) // Add index for namespace lookups
 }
 
 model QRCode {
   id            String    @id @default(cuid())
   name          String
-  slug          String    @unique
+  slug          String    // No longer unique globally, but unique per user
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   userId        String
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   redirects     Redirect[]
 
+  @@unique([userId, slug]) // Make slug unique per user
   @@index([userId]) // Add index for user lookups
   @@index([slug]) // Add index for slug lookups
   @@index([createdAt]) // Add index for sorting

@@ -35,6 +35,11 @@ export default async function QRCodeDetailPage({ params }: QRCodeDetailPageProps
         orderBy: {
           createdAt: "desc"
         }
+      },
+      user: {
+        select: {
+          namespace: true
+        }
       }
     }
   });
@@ -45,7 +50,14 @@ export default async function QRCodeDetailPage({ params }: QRCodeDetailPageProps
   
   // Find the active redirect
   const activeRedirect = qrCode.redirects.find(redirect => redirect.isActive);
-  const qrUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/r/${qrCode.slug}`;
+  
+  // Create both legacy and namespaced URLs
+  const baseUrl = process.env.NEXTAUTH_URL || 'http://localhost:3000';
+  const legacyUrl = `${baseUrl}/r/${qrCode.slug}`;
+  const namespacedUrl = `${baseUrl}/r/${qrCode.user.namespace}/${qrCode.slug}`;
+  
+  // Use the namespaced URL as the primary QR code URL
+  const qrUrl = namespacedUrl;
   
   return (
     <div>
@@ -74,6 +86,27 @@ export default async function QRCodeDetailPage({ params }: QRCodeDetailPageProps
               <p className="text-sm text-gray-700 mb-2">Scan to visit:</p>
               <div className="bg-gray-50 p-2 rounded-md text-sm font-mono break-all border border-gray-100">
                 {qrUrl}
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white p-6 rounded-md shadow-soft border border-gray-100 mb-6">
+            <h2 className="text-lg font-semibold mb-4 text-gray-900">URLs</h2>
+            <div className="space-y-4">
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-1">Namespaced URL (recommended):</p>
+                <div className="bg-gray-50 p-2 rounded-md text-sm font-mono break-all border border-gray-100">
+                  {namespacedUrl}
+                </div>
+              </div>
+              <div>
+                <p className="text-sm font-medium text-gray-700 mb-1">Legacy URL (for backward compatibility):</p>
+                <div className="bg-gray-50 p-2 rounded-md text-sm font-mono break-all border border-gray-100">
+                  {legacyUrl}
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Note: Legacy URLs will continue to work but may be deprecated in the future.
+                </p>
               </div>
             </div>
           </div>

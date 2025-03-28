@@ -77,15 +77,31 @@ export async function POST(request: NextRequest) {
     
     const { name, slug } = validationResult.data;
     
-    // Check if slug already exists
-    const existingQRCode = await prisma.qRCode.findUnique({
-      where: { slug }
+    // Check if slug already exists for this user
+    const existingQRCode = await prisma.qRCode.findFirst({
+      where: { 
+        userId: session.user.id,
+        slug 
+      }
     });
     
     if (existingQRCode) {
       return NextResponse.json(
-        { error: "Slug already in use" },
+        { error: "You already have a QR code with this slug" },
         { status: 400 }
+      );
+    }
+    
+    // Get user to include namespace
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { namespace: true }
+    });
+    
+    if (!user) {
+      return NextResponse.json(
+        { error: "User not found" },
+        { status: 404 }
       );
     }
     
@@ -98,7 +114,10 @@ export async function POST(request: NextRequest) {
       }
     });
     
-    return NextResponse.json(qrCode, { status: 201 });
+    return NextResponse.json({
+      ...qrCode,
+      fullSlug: `${user.namespace}/${slug}`
+    }, { status: 201 });
   } catch (error) {
     console.error("Error creating QR code:", error);
     return NextResponse.json(
